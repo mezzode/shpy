@@ -6,10 +6,10 @@
 
 while ($line = <>) {
     chomp $line;
-    if ($line =~ /^#!/ && $. == 1) {
-        print "#!/usr/bin/python2.7\n";
-    } elsif ($line =~ /echo/) {
-        print "print 'hello world'\n";
+    if ($line =~ /^#!/ && $. == 1) { # if first line shebang
+        print "#!/usr/bin/python2.7\n"; # python2 shebang
+    } elsif ($line =~ /echo (.*)/) {
+        print "print '$1'\n";
     } else {
         # Lines we can't translate are turned into comments
         print "#$line\n";
