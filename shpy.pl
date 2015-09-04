@@ -10,8 +10,21 @@ while ($line = <>) {
         print "#!/usr/bin/python2.7\n"; # python2 shebang
     } elsif ($line =~ /echo (.*)/) {
         print "print '$1'\n";
+    # } elsif (!keyword($line)){
+        # subprocess.call # ?
     } else {
         # Lines we can't translate are turned into comments
         print "#$line\n";
     }
+}
+
+%keywords = ("case"); # shell keywords which need special handling
+sub keyword {
+    my $is_keyword = 0; # false
+    my ($in) = @_; # first argument
+    # compare to array of known keywords
+    foreach $word (%keywords){
+        $is_keyword = 1 if ($in eq $word); # true
+    }
+    return $is_keyword;
 }
