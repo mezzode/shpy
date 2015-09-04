@@ -18,13 +18,19 @@ while ($line = <>) {
     }
 }
 
-%keywords = ("case"); # shell keywords which need special handling
+# shell keywords which need special handling
+# currently not handling !, [[]], {}
+# from https://www.gnu.org/software/bash/manual/html_node/Reserved-Word-Index.html#Reserved-Word-Index
+%keywords = ("case","do","done","elif","else","esac",
+            "fi","for","function","if","in","select",
+            "then","time","until","while");
+
 sub keyword {
     my $is_keyword = 0; # false
     my ($in) = @_; # first argument
     # compare to array of known keywords
-    foreach $word (%keywords){
-        $is_keyword = 1 if ($in eq $word); # true
+    foreach $i (%keywords){
+        $is_keyword = 1 if ($in eq $keyword[$i]); # true
     }
     return $is_keyword;
 }
