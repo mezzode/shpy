@@ -7,7 +7,7 @@
 while ($line = <>) {
     chomp $line;
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
-        print "#!/usr/bin/python2.7\n"; # python2 shebang
+        print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
     } elsif ($line =~ /echo (.*)/) {
         print "print '$1'\n";
     # } elsif (!keyword($line)){
