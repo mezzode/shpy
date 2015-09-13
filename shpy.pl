@@ -21,6 +21,14 @@ while ($line = <>) {
 
     if (!$line){
         next;
+    } elsif ($line =~ /([A-Za-z_][0-9A-Za-z_]*)=(\S.*)/g){
+        $var = $1;
+        $assigned = $2;
+        if ($assigned =~ /^\d+$/){
+            print "$var = $assigned\n";
+        } else {
+            print "$var = '$assigned'";
+        }
     } elsif ($line =~ /echo (.*)/) {
         print "print '$1'";
     } elsif (!keyword($line)){
