@@ -6,20 +6,35 @@
 $imported_subprocess = 0;
 while ($line = <>) {
     chomp $line;
+    $comment = "";
+
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
         print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
+        next;
+    } elsif ($line =~ /^\s*#(.*)/){
+        print "#$1\n";
+        next;
+    } elsif ($line =~ /(.*)#(.*)/){
+        $line = $1;
+        $comment = $2;        
+    }
+
+    if (!$line){
+        next;
     } elsif ($line =~ /echo (.*)/) {
-        print "print '$1'\n";
+        print "print '$1'";
     } elsif (!keyword($line)){
         print "import subprocess\n" and $imported_subprocess = 1 if !$imported_subprocess;
         @words = split(/\s/,$line);
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
-        print "subprocess.call([$line])\n";
+        print "subprocess.call([$line])";
     } else {
         # Lines we can't translate are turned into comments
-        print "#$line\n";
+        print "# $line";
     }
+    print " #$comment" if $comment;
+    print "\n";
 }
 
 # shell keywords which need special handling
