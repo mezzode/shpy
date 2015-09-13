@@ -10,8 +10,12 @@ while ($line = <>) {
         print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
     } elsif ($line =~ /echo (.*)/) {
         print "print '$1'\n";
-    # } elsif (!keyword($line)){
-        # subprocess.call # ?
+    } elsif (!keyword($line)){
+        print "import subprocess\n";
+        @words = split(/\s/,$line);
+        @new = map {"'$_'"} @words;
+        $line = join(",",@new);
+        print "subprocess.call([$line])\n";
     } else {
         # Lines we can't translate are turned into comments
         print "#$line\n";
