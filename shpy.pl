@@ -30,7 +30,17 @@ while ($line = <>) {
             print "$var = '$assigned'";
         }
     } elsif ($line =~ /echo (.*)/) {
-        print "print '$1'";
+        @words = split(/ /,$1);
+        foreach $i (0..$#words){
+            if ($words[$i] =~ /\$([A-Za-z_][0-9A-Za-z_]*)/){
+                $words[$i] = $1;
+            } else {
+                $words[$i] = "'$words[$i]'";
+            }
+        }
+        $line = join(",",@words);
+        print "print $line";
+        # print "print '$1'";
     } elsif (!keyword($line)){
         print "import subprocess\n" and $imported_subprocess = 1 if !$imported_subprocess;
         @words = split(/\s/,$line);
