@@ -12,7 +12,8 @@ while ($line = <>) {
     $comment = "";
 
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
-        print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
+        # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
+        die if !($line =~ /^#!\/bin\/sh'/); # die if not shell script
         next;
     } elsif ($line =~ /^\s*#(.*)/){
         print "#$1\n";
