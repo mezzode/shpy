@@ -3,7 +3,10 @@
 # written by andrewt@cse.unsw.edu.au August 2015
 # as a starting point for COMP2041/9041 assignment 
 # http://cgi.cse.unsw.edu.au/~cs2041/assignment/shpy
-%imported = ();
+
+%import = ();
+
+# read
 while ($line = <>) {
     chomp $line;
     $comment = "";
@@ -54,6 +57,66 @@ while ($line = <>) {
     print " #$comment" if $comment;
     print "\n";
 }
+
+# print
+print "#!/usr/bin/python2.7 -u\n";
+print "import $module\n" foreach $module (sort keys %import);
+foreach $i (0..$#line){
+    # print/process $line[$i]
+}
+
+# original one-step method (print line-by-line)
+# %imported = ();
+# while ($line = <>) {
+#     chomp $line;
+#     $comment = "";
+
+#     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
+#         print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
+#         next;
+#     } elsif ($line =~ /^\s*#(.*)/){
+#         print "#$1\n";
+#         next;
+#     } elsif ($line =~ /(.*)#(.*)/){
+#         $line = $1;
+#         $comment = $2;        
+#     }
+
+#     if (!$line){
+#         next;
+#     } elsif ($line =~ /([A-Za-z_][0-9A-Za-z_]*)=(\S.*)/g){
+#         $var = $1;
+#         $assigned = $2;
+#         if ($assigned =~ /^\d+$/){
+#             print "$var = $assigned\n";
+#         } else {
+#             print "$var = '$assigned'";
+#         }
+#     } elsif ($line =~ /echo (.*)/) {
+#         @words = split(/ /,$1);
+#         foreach $i (0..$#words){
+#             if ($words[$i] =~ /\$([A-Za-z_][0-9A-Za-z_]*)/){
+#                 $words[$i] = $1;
+#             } else {
+#                 $words[$i] = "'$words[$i]'";
+#             }
+#         }
+#         $line = join(",",@words);
+#         print "print $line";
+#         # print "print '$1'";
+#     } elsif (!keyword($line)){
+#         print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
+#         @words = split(/\s/,$line);
+#         @new = map {"'$_'"} @words;
+#         $line = join(",",@new);
+#         print "subprocess.call([$line])";
+#     } else {
+#         # Lines we can't translate are turned into comments
+#         print "# $line";
+#     }
+#     print " #$comment" if $comment;
+#     print "\n";
+# }
 
 # shell keywords which need special handling
 # currently not handling "!"
