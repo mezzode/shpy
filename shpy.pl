@@ -3,7 +3,7 @@
 # written by andrewt@cse.unsw.edu.au August 2015
 # as a starting point for COMP2041/9041 assignment 
 # http://cgi.cse.unsw.edu.au/~cs2041/assignment/shpy
-$imported_subprocess = 0;
+%imported = ();
 while ($line = <>) {
     chomp $line;
     $comment = "";
@@ -42,7 +42,7 @@ while ($line = <>) {
         print "print $line";
         # print "print '$1'";
     } elsif (!keyword($line)){
-        print "import subprocess\n" and $imported_subprocess = 1 if !$imported_subprocess;
+        print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         @words = split(/\s/,$line);
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
