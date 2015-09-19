@@ -13,7 +13,7 @@ while ($line = <>) {
 
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
         # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
-        die if !($line =~ /^#!\/bin\/sh'/); # die if not shell script
+        die if !($line =~ /^#!\/bin\/sh/); # die if not shell script
         next;
     } elsif ($line =~ /^\s*#(.*)/){
         print "#$1\n";
@@ -61,7 +61,7 @@ while ($line = <>) {
 
 # print
 print "#!/usr/bin/python2.7 -u\n";
-print "import $module\n" foreach $module (sort keys %import);
+print "import $_\n" foreach (sort keys %import);
 foreach $i (0..$#line){
     # print/process $line[$i]
 }
