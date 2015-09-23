@@ -1,2 +1,2 @@
 #!/bin/sh
-./shpy.pl examples/0/$1.sh > output/0/$1.py
+./shpy.pl examples/$1.sh > output/$1.py
