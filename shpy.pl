@@ -61,28 +61,28 @@ foreach $line (@shell) {
         $list = listConvert($2);
         $line = "for $1 in $list:";
     } elsif ($line =~ /^\s*do\b/) { # do
-        $for = 1;
+        $for++;
         $line = "";
     } elsif ($line =~ /^\s*done\b/) { # done
         die if $for == 0; # die if done but not in for loop
-        $for = 0;
+        $for--;
         $line = "";
     } elsif ($line =~ /^\s*if\s+(.*)/){ # if
         $line = "if ".translate($1).":";
     } elsif ($line =~ /^\s*then\b/){ # then
-        $if = 1;
+        $if++;
         $line = "";
     } elsif ($line =~ /^\s*elif\s+(.*)/){ # elif
         die if $if == 0; # die if elif but not in if statement
-        $if = 0;
+        $if--;
         $line = "elif ".translate($1).":";
     } elsif ($line =~ /^\s*else\b/){ # else
         die if $if == 0; # die if else but not in if statement
-        $else = 1;
+        $else++;
         $line = "else:";
     } elsif ($line =~ /^\s*fi\b/){ # fi
         die if $if == 0; # die if fi but not in if statement
-        $if = 0;
+        $if--;
         $line = "";
     } elsif ($line and not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
