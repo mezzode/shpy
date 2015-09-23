@@ -37,17 +37,8 @@ foreach $line (@shell) {
             print "$var = '$assigned'";
         }
     } elsif ($line =~ /^\s*echo (.*)/){
-        @words = split(/ /,$1);
-        foreach $i (0..$#words){
-            if ($words[$i] =~ /\$([A-Za-z_][0-9A-Za-z_]*)/){
-                $words[$i] = $1;
-            } else {
-                $words[$i] = "'$words[$i]'";
-            }
-        }
-        $line = join(",",@words);
+        $line = listConvert($1);
         print "print $line";
-        # print "print '$1'";
     } elsif (!keyword($line)){
         print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         @words = split(/\s/,$line);
@@ -140,6 +131,7 @@ sub keyword {
     return $is_keyword;
 }
 
+# Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
     my @elems = split(/ /,$list);
@@ -147,7 +139,9 @@ sub listConvert {
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^\$([A-Za-z_][0-9A-Za-z_]*)$/){ # if variable
             $elem = $1;
-            if ($elem =~ /^{(.*)}$/) $elem = $1; # remove delimiters
+            if ($elem =~ /^{(.*)}$/){
+                $elem = $1; # remove delimiters
+            }
             $elems[$i] = $elem;
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
