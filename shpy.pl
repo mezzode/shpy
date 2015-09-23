@@ -5,15 +5,17 @@
 # http://cgi.cse.unsw.edu.au/~cs2041/assignment/shpy
 
 %import = ();
+@shell = <>;
+@python = ("#!/usr/bin/python2.7 -u");
 
 # read
-while ($line = <>) {
+foreach $line (@shell) {
     chomp $line;
     $comment = "";
 
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
         # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
-        die if !($line =~ /^#!\/bin\/sh/); # die if not shell script
+        die if not ($line =~ /^#!\/bin\/sh/); # die if not shell script
         next;
     } elsif ($line =~ /^\s*#(.*)/){
         print "#$1\n";
@@ -62,8 +64,9 @@ while ($line = <>) {
 # print
 print "#!/usr/bin/python2.7 -u\n";
 print "import $_\n" foreach (sort keys %import);
-foreach $i (0..$#line){
+foreach $line (@python){
     # print/process $line[$i]
+    print "$line\n";
 }
 
 # original one-step method (print line-by-line)
