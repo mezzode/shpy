@@ -171,6 +171,9 @@ sub listConvert {
             $elems[$i] = $elem;
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
+        } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
+            $import{glob} = 1;
+            $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
         } else { # if string
             $elems[$i] = "'$elems[$i]'";
         }
