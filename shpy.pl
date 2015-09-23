@@ -6,7 +6,7 @@
 
 %import = ();
 @shell = <>;
-@python = ("#!/usr/bin/python2.7 -u");
+@python = ();
 
 # read
 if ($shell[0] =~ /^#!/) {
