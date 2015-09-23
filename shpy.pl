@@ -15,6 +15,7 @@
 @shell = <>;
 @python = ();
 $for = 0; # for flag to indicate whether currently in for loop
+$if = 0; # if flag to indicate if in if statement
 $var_re = "[A-Za-z_][0-9A-Za-z_]*"; # shell variable regex
 
 # read
@@ -25,6 +26,7 @@ if ($shell[0] =~ /^#!/) {
 foreach $line (@shell) {
     chomp $line;
     $comment = "";
+    $else = 0; # flag to indicate if line should not be indented
 
     if ($line =~ /^#!/ && $. == 1) { # if first line shebang
         # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
@@ -71,6 +73,23 @@ foreach $line (@shell) {
         die if $for == 0; # die if done but not in for loop
         $for = 0;
         next;
+    } elsif ($line =~ /^\s*if\s+(.*)/){ # if
+        $line = "if ".translate($1).":";
+    } elsif ($line =~ /^\s*then\b/){ # then
+        $if = 1;
+        next;
+    } elsif ($line =~ /^\s*elif\s+(.*)/){ # elif
+        die if $if == 0; # die if elif but not in if statement
+        $if = 0;
+        $line = "elif ".translate($1).":";
+    } elsif ($line =~ /^\s*else\b/){ # else
+        die if $if == 0; # die if else but not in if statement
+        $else = 1;
+        $line = "else:";
+    } elsif ($line =~ /^\s*fi\b/){ # fi
+        die if $if == 0; # die if fi but not in if statement
+        $if = 0;
+        next;
     } elsif (not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
@@ -85,6 +104,7 @@ foreach $line (@shell) {
     $line = "$line #$comment" if $comment;
     $line .= "\n";
     $line = "    $line" if $for; # indent if in for loop
+    $line = "    $line" if $if and not $else; # indent if in if statement
     push @python,$line;
 }
 
@@ -185,4 +205,10 @@ sub listConvert {
     }
     $list = join(", ",@elems);
     return $list;
+}
+
+sub translate {
+    my ($line) = @_;
+    # translate line
+    return $line;
 }
