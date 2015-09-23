@@ -28,22 +28,16 @@ foreach $line (@shell) {
     $comment = "";
     $else = 0; # flag to indicate if line should not be indented
 
-    if ($line =~ /^#!/ && $. == 1) { # if first line shebang
-        # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
-        die if not ($line =~ /^#!\/bin\/sh/); # die if not shell script
-        next;
-    } elsif ($line =~ /^\s*#(.*)/){ # if just a comment
-        push @python,"#$1\n"; # print the comment
-        next;
+    if ($line =~ /^\s*#(.*)/){ # if just a comment
+        $line = "";
+        $comment = $1;
     } elsif ($line =~ /(.*)#(.*)/){
         $line = $1;
-        $comment = $2;        
+        chomp $line;
+        $comment = $2;
     }
 
-    if (!$line){ # skip blank lines
-        push @python, "\n";
-        next;
-    } elsif ($line =~ /($var_re)=(\S.*)/){ # variable assignment
+    if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
         $var = $1;
         $assigned = $2;
         if ($assigned =~ /^\d+$/){ # number
@@ -90,14 +84,14 @@ foreach $line (@shell) {
         die if $if == 0; # die if fi but not in if statement
         $if = 0;
         $line = "";
-    } elsif (not keyword($line)){
+    } elsif ($line and not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
         @words = split(/\s/,$line);
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
         $line = "subprocess.call([$line])";
-    } else {
+    } elsif ($line) {
         # Lines we can't translate are turned into comments
         $line = "# $line";
     }
