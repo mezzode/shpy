@@ -4,6 +4,13 @@
 # as a starting point for COMP2041/9041 assignment 
 # http://cgi.cse.unsw.edu.au/~cs2041/assignment/shpy
 
+# shell keywords which need special handling
+# currently not handling "!"
+# from https://www.gnu.org/software/bash/manual/html_node/Reserved-Word-Index.html#Reserved-Word-Index
+@keywords = ("[[.*]]","{.*}","case","do","done","elif","else","esac",
+            "fi","for","function","if","in","select",
+            "then","time","until","while");
+
 %import = ();
 @shell = <>;
 @python = ();
@@ -29,26 +36,26 @@ foreach $line (@shell) {
         $comment = $2;        
     }
 
-    if (!$line){
+    if (!$line){ # skip blank lines
         next;
-    } elsif ($line =~ /([A-Za-z_][0-9A-Za-z_]*)=(\S.*)/g){
+    } elsif ($line =~ /([A-Za-z_][0-9A-Za-z_]*)=(\S.*)/g){ # variable assignment
         $var = $1;
         $assigned = $2;
-        if ($assigned =~ /^\d+$/){
+        if ($assigned =~ /^\d+$/){ # number
             $line = "$var = $assigned\n";
-        } else {
+        } else { # string
             $line = "$var = '$assigned'";
         }
-    } elsif ($line =~ /^\s*echo (.*)/){
+    } elsif ($line =~ /^\s*echo (.*)/){ # echo
         $line = "print ".listConvert($1);
         # $line = "print ".$line;
-    } elsif ($line =~ /^\s*cd (.*)/){
+    } elsif ($line =~ /^\s*cd (.*)/){ # cd
         $import{os} = 1;
         $line = "os.chdir('$1')";
-    } elsif ($line =~ /^\s*exit\s+([\d]*)/){
+    } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
         $import{sys} = 1;
         $line = "sys.exit($1)";
-    } elsif (!keyword($line)){
+    } elsif (not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
         @words = split(/\s/,$line);
@@ -126,19 +133,12 @@ print @python;
 #     print "\n";
 # }
 
-# shell keywords which need special handling
-# currently not handling "!"
-# from https://www.gnu.org/software/bash/manual/html_node/Reserved-Word-Index.html#Reserved-Word-Index
-@keywords = ("[[.*]]","{.*}","case","do","done","elif","else","esac",
-            "fi","for","function","if","in","select",
-            "then","time","until","while");
-
 sub keyword {
     my $is_keyword = 0; # false
     my ($in) = @_; # first argument
     # compare to array of known keywords
     foreach $word (@keywords){
-        $is_keyword = 1 if ($in =~ /^$word$/); # need to deal with substrings?
+        $is_keyword = 1 if ($in =~ /^\s*$word/); # need to deal with substrings?
     }
     return $is_keyword;
 }
