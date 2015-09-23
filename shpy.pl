@@ -14,6 +14,7 @@
 %import = ();
 @shell = <>;
 @python = ();
+$var_re = "[A-Za-z_][0-9A-Za-z_]*"; # shell variable regex
 
 # read
 if ($shell[0] =~ /^#!/) {
@@ -37,8 +38,9 @@ foreach $line (@shell) {
     }
 
     if (!$line){ # skip blank lines
+        push @python, "\n";
         next;
-    } elsif ($line =~ /([A-Za-z_][0-9A-Za-z_]*)=(\S.*)/g){ # variable assignment
+    } elsif ($line =~ /($var_re)=(\S.*)/){ # variable assignment
         $var = $1;
         $assigned = $2;
         if ($assigned =~ /^\d+$/){ # number
