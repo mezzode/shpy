@@ -58,6 +58,9 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
         $import{sys} = 1;
         $line = "sys.exit($1)";
+    } elsif ($line =~ /^\s*read\s+(.*)/){ # read
+        $import{sys} = 1;
+        $line = "$1 = sys.stdin.readline().rstrip()";
     } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
