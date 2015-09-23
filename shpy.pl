@@ -139,3 +139,22 @@ sub keyword {
     }
     return $is_keyword;
 }
+
+sub listConvert {
+    my ($list) = @_;
+    my @elems = split(/ /,$list);
+    my $elem;
+    foreach my $i (0..$#elems){
+        if ($elems[$i] =~ /^\$([A-Za-z_][0-9A-Za-z_]*)$/){ # if variable
+            $elem = $1;
+            if ($elem =~ /^{(.*)}$/) $elem = $1; # remove delimiters
+            $elems[$i] = $elem;
+        } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
+            next;
+        } else { # if string
+            $elems[$i] = "'$elems[$i]'";
+        }
+    }
+    $list = join(", ",@elems);
+    return $list;
+}
