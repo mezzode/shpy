@@ -36,7 +36,7 @@ foreach $line (@shell) {
         } else {
             print "$var = '$assigned'";
         }
-    } elsif ($line =~ /echo (.*)/) {
+    } elsif ($line =~ /^\s*echo (.*)/){
         @words = split(/ /,$1);
         foreach $i (0..$#words){
             if ($words[$i] =~ /\$([A-Za-z_][0-9A-Za-z_]*)/){
