@@ -14,6 +14,7 @@
 %import = ();
 @shell = <>;
 @python = ();
+$for = 0; # for flag to indicate whether currently in for loop
 $var_re = "[A-Za-z_][0-9A-Za-z_]*"; # shell variable regex
 
 # read
@@ -57,6 +58,16 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
         $import{sys} = 1;
         $line = "sys.exit($1)";
+    } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
+        $list = listConvert($2);
+        $line = "for $1 in $list";
+    } elsif ($line =~ /^\s*do\b/) { # do
+        $for = 1;
+        next;
+    } elsif ($line =~ /^\s*done\b/) { # done
+        die if $for == 0; # die if done but not in for loop
+        $for = 0;
+        next;
     } elsif (not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
@@ -70,6 +81,7 @@ foreach $line (@shell) {
     }
     $line = "$line #$comment" if $comment;
     $line .= "\n";
+    $line = "    $line" if $for; # indent if in for loop
     push @python,$line;
 }
 
