@@ -68,16 +68,16 @@ foreach $line (@shell) {
         $line = "for $1 in $list:";
     } elsif ($line =~ /^\s*do\b/) { # do
         $for = 1;
-        next;
+        $line = "";
     } elsif ($line =~ /^\s*done\b/) { # done
         die if $for == 0; # die if done but not in for loop
         $for = 0;
-        next;
+        $line = "";
     } elsif ($line =~ /^\s*if\s+(.*)/){ # if
         $line = "if ".translate($1).":";
     } elsif ($line =~ /^\s*then\b/){ # then
         $if = 1;
-        next;
+        $line = "";
     } elsif ($line =~ /^\s*elif\s+(.*)/){ # elif
         die if $if == 0; # die if elif but not in if statement
         $if = 0;
@@ -89,7 +89,7 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*fi\b/){ # fi
         die if $if == 0; # die if fi but not in if statement
         $if = 0;
-        next;
+        $line = "";
     } elsif (not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
@@ -101,7 +101,12 @@ foreach $line (@shell) {
         # Lines we can't translate are turned into comments
         $line = "# $line";
     }
-    $line = "$line #$comment" if $comment;
+    if ($comment and $line){
+        $line = "$line #$comment";
+    } elsif ($comment and not $line){
+        $line = "#$comment";
+    }
+    next if not $line; # skip blank lines
     $line .= "\n";
     $line = "    $line" if $for; # indent if in for loop
     $line = "    $line" if $if and not $else; # indent if in if statement
