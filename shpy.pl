@@ -9,7 +9,10 @@
 @python = ("#!/usr/bin/python2.7 -u");
 
 # read
-if ($shell[0] =~ /^#!/ and !($shell[0] =~ /^#!\/bin\/sh/)) die; # if not shell, die
+if ($shell[0] =~ /^#!/) {
+    die if !($shell[0] =~ /^#!\/bin\/sh/); # if not shell, die
+    shift @shell; # remove shebang
+}
 foreach $line (@shell) {
     chomp $line;
     $comment = "";
