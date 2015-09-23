@@ -102,8 +102,9 @@ foreach $line (@shell) {
     }
     next if not $line; # skip blank lines
     $line .= "\n";
-    $line = "    $line" if $for; # indent if in for loop
-    $line = "    $line" if $if and not $else; # indent if in if statement
+    # $line = "    $line" if $for; # indent if in for loop
+    # $line = "    $line" if $if and not $else; # indent if in if statement
+    $line = "    "x($for+$if-$else).$line; # indent by required amount
     push @python,$line;
 }
 
