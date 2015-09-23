@@ -165,12 +165,15 @@ sub listConvert {
     my ($list) = @_;
     my @elems = split(/\s/,$list);
     foreach my $i (0..$#elems){
-        if ($elems[$i] =~ /^\$([A-Za-z_][0-9A-Za-z_]*)$/){ # if variable
-            $elem = $1;
-            if ($elem =~ /^{(.*)}$/){
-                $elem = $1; # remove delimiters
-            }
-            $elems[$i] = $elem;
+        if ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+            $elems[$i] = $1;
+        # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
+        #     $elems[$i] =~ s/\${/'+/g;
+        #     $elems[$i] =~ s/}/+'/g;
+        #     $elems[$i] = "'$elems[$i]'";
+        } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+            $import{sys} = 1;
+            $elems[$i] = "sys.argv[$1]";
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
