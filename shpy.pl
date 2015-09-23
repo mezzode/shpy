@@ -45,6 +45,9 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*cd (.*)/){
         $import{os} = 1;
         $line = "os.chdir('$1')";
+    } elsif ($line =~ /^\s*exit\s+([\d]*)/){
+        $import{sys} = 1;
+        $line = "sys.exit($1)";
     } elsif (!keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
