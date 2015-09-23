@@ -163,7 +163,7 @@ sub keyword {
 # Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
-    my @elems = split(/\s/,$list);
+    my @elems = $list =~ /('.*?'|\S+)/g;
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
@@ -179,7 +179,7 @@ sub listConvert {
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
             $import{glob} = 1;
             $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
-        } else { # if string
+        } elsif (not $elems[$i] =~ /^'.*'$/) { # if string
             $elems[$i] = "'$elems[$i]'";
         }
     }
