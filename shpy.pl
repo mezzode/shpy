@@ -163,8 +163,7 @@ sub keyword {
 # Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
-    my @elems = split(/ /,$list);
-    my $elem;
+    my @elems = split(/\s/,$list);
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^\$([A-Za-z_][0-9A-Za-z_]*)$/){ # if variable
             $elem = $1;
