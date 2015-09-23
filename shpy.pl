@@ -42,6 +42,9 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*echo (.*)/){
         $line = listConvert($1);
         print "print $line";
+    } elsif ($line =~ /^\s*cd (.*)/){
+        $import{os} = 1;
+        print "os.chdir('$1')";
     } elsif (!keyword($line)){
         print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         @words = split(/\s/,$line);
