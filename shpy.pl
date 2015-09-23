@@ -60,7 +60,7 @@ foreach $line (@shell) {
         $line = "sys.exit($1)";
     } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
-        $line = "for $1 in $list";
+        $line = "for $1 in $list:";
     } elsif ($line =~ /^\s*do\b/) { # do
         $for = 1;
         next;
