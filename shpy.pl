@@ -14,7 +14,7 @@
 %import = ();
 @shell = <>;
 @python = ();
-$for = 0; # for flag to indicate whether currently in for loop
+$loop = 0; # flag to indicate whether currently in loop
 $if = 0; # if flag to indicate if in if statement
 $var_re = "[A-Za-z_][0-9A-Za-z_]*"; # shell variable regex
 
@@ -60,12 +60,14 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
+    } elsif ($line =~ /^\s*while\s+(.*)/){ # while
+        $line = "while ".translate($1).":";
     } elsif ($line =~ /^\s*do\b/) { # do
-        $for++;
+        $loop++;
         $line = "";
     } elsif ($line =~ /^\s*done\b/) { # done
-        die if $for == 0; # die if done but not in for loop
-        $for--;
+        die if $loop == 0; # die if done but not in loop
+        $loop--;
         $line = "";
     } elsif ($line =~ /^\s*if\s+(.*)/){ # if
         $line = "if ".translate($1).":";
@@ -102,9 +104,9 @@ foreach $line (@shell) {
     }
     next if not $line; # skip blank lines
     $line .= "\n";
-    # $line = "    $line" if $for; # indent if in for loop
+    # $line = "    $line" if $loop; # indent if in for loop
     # $line = "    $line" if $if and not $else; # indent if in if statement
-    $line = "    "x($for+$if-$else).$line; # indent by required amount
+    $line = "    "x($loop+$if-$else).$line; # indent by required amount
     push @python,$line;
 }
 
