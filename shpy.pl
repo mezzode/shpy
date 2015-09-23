@@ -21,8 +21,8 @@ foreach $line (@shell) {
         # print "#!/usr/bin/python2.7 -u\n"; # python2 shebang
         die if not ($line =~ /^#!\/bin\/sh/); # die if not shell script
         next;
-    } elsif ($line =~ /^\s*#(.*)/){
-        print "#$1\n";
+    } elsif ($line =~ /^\s*#(.*)/){ # if just a comment
+        push @python,"#$1\n"; # print the comment
         next;
     } elsif ($line =~ /(.*)#(.*)/){
         $line = $1;
@@ -35,37 +35,40 @@ foreach $line (@shell) {
         $var = $1;
         $assigned = $2;
         if ($assigned =~ /^\d+$/){
-            print "$var = $assigned\n";
+            $line = "$var = $assigned\n";
         } else {
-            print "$var = '$assigned'";
+            $line = "$var = '$assigned'";
         }
     } elsif ($line =~ /^\s*echo (.*)/){
-        $line = listConvert($1);
-        print "print $line";
+        $line = "print ".listConvert($1);
+        # $line = "print ".$line;
     } elsif ($line =~ /^\s*cd (.*)/){
         $import{os} = 1;
-        print "os.chdir('$1')";
+        $line = "os.chdir('$1')";
     } elsif (!keyword($line)){
-        print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
+        # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
+        $import{subprocess} = 1;
         @words = split(/\s/,$line);
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
-        print "subprocess.call([$line])";
+        $line = "subprocess.call([$line])";
     } else {
         # Lines we can't translate are turned into comments
-        print "# $line";
+        $line = "# $line";
     }
-    print " #$comment" if $comment;
-    print "\n";
+    $line = "$line #$comment" if $comment;
+    $line .= "\n";
+    push @python,$line;
 }
 
 # print
 print "#!/usr/bin/python2.7 -u\n";
 print "import $_\n" foreach (sort keys %import);
-foreach $line (@python){
-    # print/process $line[$i]
-    print "$line\n";
-}
+# foreach $line (@python){
+#     # print/process $line[$i]
+#     print "$line\n";
+# }
+print @python;
 
 # original one-step method (print line-by-line)
 # %imported = ();
