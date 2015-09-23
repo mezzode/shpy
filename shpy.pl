@@ -49,7 +49,7 @@ foreach $line (@shell) {
         } else { # string
             $line = "$var = '$assigned'";
         }
-    } elsif ($line =~ /^\s*echo (.*)/){ # echo
+    } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
         $line = "print ".listConvert($1);
         # $line = "print ".$line;
     } elsif ($line =~ /^\s*cd (.*)/){ # cd
