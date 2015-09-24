@@ -11,6 +11,13 @@
             "fi","for","function","if","in","select",
             "then","time","until","while");
 
+%int_test = ("-eq"=>"==",
+             "-ge"=>">=",
+             "-gt"=>">",
+             "-le"=>"<=",
+             "-lt"=>"<",
+             "-ne"=>"!=");
+
 %import = ();
 @shell = <>;
 @python = ();
@@ -66,6 +73,8 @@ foreach $line (@shell) {
         $line = "$1 = sys.stdin.readline().rstrip()";
     } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
         $line = exprConvert($1);
+    } elsif ($line =~ /^\s*test\s+(.*)/){ # test
+        $line = testConvert($1);
     } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
@@ -171,6 +180,65 @@ sub translate {
     my ($line) = @_;
     # translate line
     return $line;
+}
+
+sub testConvert {
+    my ($line) = @_;
+    my $arg1;
+    my $arg2;
+    my $op;
+
+    if ($line =~ /('.*?'|\S+) -nt ('.*?'|\S+)/){ # newer than
+        $arg1 = $1;
+        $arg2 = $2;
+        $line = $line;
+    } elsif ($line =~ /('.*?'|\S+) -ot ('.*?'|\S+)/){ # older than
+        $arg1 = $1;
+        $arg2 = $2;
+        $line = $line;
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) (\-\S+) (\((?:[^\(\)]++|(?1))*\)|\S+)/){
+        $arg1 = testConvert($1);
+        $op = $2;
+        $arg2 = testConvert($3);
+        foreach my $key (sort keys %int_test){
+            if ($op == $key){
+                $line = "(int($arg1) $int_test{$key} int($arg2))";
+            }
+        }
+        if ($op =~ /-a/){
+            $line = "($arg1 and $arg2)"
+        } elsif ($op =~ /-o/){
+            $line = "($arg1 or $arg2)"
+        }
+    } elsif ($line =~ /('.*?'|\S+) = ('.*?'|\S+)/){
+        if (not $arg1 =~ /'.*'/){
+            $arg1 = "'$arg1'";
+        }
+        if (not $arg2 =~ /'.*'/){
+            $arg2 = "'$arg2'";
+        }
+        $line = "$arg1 == $arg2";
+    } elsif ($line =~ /('.*?'|\S+) != ('.*?'|\S+)/){
+        if (not $arg1 =~ /'.*'/){
+            $arg1 = "'$arg1'";
+        }
+        if (not $arg2 =~ /'.*'/){
+            $arg2 = "'$arg2'";
+        }
+        $line = "$arg1 != $arg2";
+    } elsif ($line =~ /\s*!\s+(.*)/){
+        $line = "not ".$arg1;
+    } elsif $line =~ /^\s*-n\s+('.*?'|\S+)/){
+        $line = "len($1) != 0"; # string is nonzero
+    } elsif $line =~ /^\s*-z\s+('.*?'|\S+)/){
+        $line = "len($1) == 0"; # string is nonzero
+    } elsif ($line =~ /^\s*-d\s+('.*?'|\S+)/){
+        $import{os} = 1;
+        $line = "os.path.isdir(".listConvert($1).")";
+    } elsif ($line =~ /^\s*-r\s+('.*?'|\S+)/){
+        $import{os} = 1;
+        $line = "os.access(".listConvert($1).", os.R_OK)";
+    }
 }
 
 sub exprConvert {
