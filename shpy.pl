@@ -178,22 +178,35 @@ sub exprConvert {
     chomp $line;
     my $string;
     my $regex;
+    my $arg1;
+    my $arg2;
+    my $op;
     my $token = 0;
     if ($line =~ /^\s*\+/){
         $token = 1; # escape first word;
     }
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) ([+\-*\/%]) (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # numeric operation
-        my $arg1 = exprConvert($1);
-        my $op = $2;
-        my $arg2 = exprConvert($3);
-        if (not $arg1 =~ /^\d+$/){
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+?) ([+\-*\/%]) (\((?:[^\(\)]++|(?1))*\)|\S+?)/){ # numeric operation
+        $arg1 = $1;
+        $op = $2;
+        $arg2 = $3;
+        if ($arg1 =~ /\((.*)\)/){
+            $arg1 = exprConvert($1);
+        } else {
+            $arg1 = exprConvert($arg1);
+        }
+        if ($arg2 =~ /\((.*)\)/){
+            $arg2 = exprConvert($1);
+        } else {
+            $arg2 = exprConvert($arg2);
+        }
+        if ($arg1 =~ /^\D+$/){
             $arg1 = "int($arg1)";
         }
-        if (not $arg2 =~ /^\d+$/){
+        if ($arg2 =~ /^\D+$/){
             $arg2 = "int($arg2)";
         }
-        $line = "$arg1 $op $arg2"; 
+        $line = "($arg1 $op $arg2)"; 
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) ([<>=]|[<>!]=) (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # comparison
         $arg1 = exprConvert($1);
         $op = $2;
@@ -207,7 +220,7 @@ sub exprConvert {
         $arg1 = exprConvert($1);
         $arg2 = exprConvert($2);
         $line = "$arg1 if $arg1 and $arg2 else 0";
-    }elsif ($line =~ /\( (.*) \)/){
+    }elsif ($line =~ /^\s*\(\s+(.*)\s+\)/){
         $line = exprConvert($1);
     } elsif ($line =~ /('.*?'|\S+) : ('.*?'|\S+)/){
         $import{re} = 1;
