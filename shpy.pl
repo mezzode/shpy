@@ -197,6 +197,18 @@ sub exprConvert {
         } else {
             $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
         }
+    } elsif ($line =~ /^\s*match\s+('.*?'|\S+)\s+('.*'|\S+)/{
+        $import{re} = 1;
+        $string = $1;
+        $regex = $2;
+        if (not $string =~ /'.*'/) $string = "'$string'";
+        if ($regex =~ /^'(.*)'$/) $regex = $1;
+        if $regex =~ /^\((.*)\)$/{
+            $regex = $1;
+            $line = "re.search(r'$regex',$string).group()"; # get matching substring
+        } else {
+            $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
+        }
     } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/){
         $string = $1;
         if (not $string =~ /'.*'/) $string = "'$string'";
