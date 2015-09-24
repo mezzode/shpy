@@ -50,32 +50,7 @@ foreach $line (@shell) {
         $comment = $2;
     }
 
-    if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
-        # $var = $1;
-        # $assigned = $2;
-        # if ($assigned =~ /^\d+$/){ # number
-        #     $line = "$var = $assigned";
-        # } else { # string
-        #     $line = "$var = '$assigned'";
-        # }
-        $line = "$1 = ".listConvert($2);
-    } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
-        $line = "print ".listConvert($1);
-        # $line = "print ".$line;
-    } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
-        $import{os} = 1;
-        $line = "os.chdir('$1')";
-    } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
-        $import{sys} = 1;
-        $line = "sys.exit($1)";
-    } elsif ($line =~ /^\s*read\s+(.*)/){ # read
-        $import{sys} = 1;
-        $line = "$1 = sys.stdin.readline().rstrip()";
-    } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
-        $line = exprConvert($1);
-    } elsif ($line =~ /^\s*test\s+(.*)/){ # test
-        $line = testConvert($1);
-    } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
+    if ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
     } elsif ($line =~ /^\s*while\s+(.*)/){ # while
@@ -104,16 +79,8 @@ foreach $line (@shell) {
         die if $if == 0; # die if fi but not in if statement
         $if--;
         $line = "";
-    } elsif ($line and not keyword($line)){
-        # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
-        $import{subprocess} = 1;
-        @words = split(/\s/,$line);
-        @new = map {"'$_'"} @words;
-        $line = join(",",@new);
-        $line = "subprocess.call([$line])";
-    } elsif ($line) {
-        # Lines we can't translate are turned into comments
-        $line = "# $line";
+    } else {
+        $line = translate($line);
     }
     if ($comment and $line){
         $line = "$line #$comment";
@@ -136,6 +103,40 @@ print "import $_\n" foreach (sort keys %import);
 #     print "$line\n";
 # }
 print @python;
+
+sub translate {
+    my ($line) = @_;
+    if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
+        $line = "$1 = ".listConvert($2);
+    } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
+        $line = "print ".listConvert($1);
+        # $line = "print ".$line;
+    } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
+        $import{os} = 1;
+        $line = "os.chdir('$1')";
+    } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
+        $import{sys} = 1;
+        $line = "sys.exit($1)";
+    } elsif ($line =~ /^\s*read\s+(.*)/){ # read
+        $import{sys} = 1;
+        $line = "$1 = sys.stdin.readline().rstrip()";
+    } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
+        $line = exprConvert($1);
+    } elsif ($line =~ /^\s*test\s+(.*)/){ # test
+        $line = testConvert($1);
+    } elsif ($line and not keyword($line)){
+        # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
+        $import{subprocess} = 1;
+        @words = split(/\s/,$line);
+        @new = map {"'$_'"} @words;
+        $line = join(",",@new);
+        $line = "subprocess.call([$line])";
+    } elsif ($line) {
+        # Lines we can't translate are turned into comments
+        $line = "# $line";
+    } 
+    return $line;
+}
 
 sub keyword {
     my $is_keyword = 0; # false
@@ -176,12 +177,6 @@ sub listConvert {
     return $list;
 }
 
-sub translate {
-    my ($line) = @_;
-    # translate line
-    return $line;
-}
-
 sub testConvert {
     my ($line) = @_;
     my $arg1;
@@ -191,17 +186,17 @@ sub testConvert {
     if ($line =~ /('.*?'|\S+) -nt ('.*?'|\S+)/){ # newer than
         $arg1 = $1;
         $arg2 = $2;
-        $line = $line;
+        $line = $line; # to do
     } elsif ($line =~ /('.*?'|\S+) -ot ('.*?'|\S+)/){ # older than
         $arg1 = $1;
         $arg2 = $2;
-        $line = $line;
+        $line = $line; # to do
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) (\-\S+) (\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = testConvert($1);
         $op = $2;
         $arg2 = testConvert($3);
         foreach my $key (sort keys %int_test){
-            if ($op == $key){
+            if ($op =~ /$key/){
                 $line = "(int($arg1) $int_test{$key} int($arg2))";
             }
         }
@@ -211,6 +206,8 @@ sub testConvert {
             $line = "($arg1 or $arg2)"
         }
     } elsif ($line =~ /('.*?'|\S+) = ('.*?'|\S+)/){
+        $arg1 = $1;
+        $arg2 = $2;
         if (not $arg1 =~ /'.*'/){
             $arg1 = "'$arg1'";
         }
@@ -219,6 +216,8 @@ sub testConvert {
         }
         $line = "$arg1 == $arg2";
     } elsif ($line =~ /('.*?'|\S+) != ('.*?'|\S+)/){
+        $arg1 = $1;
+        $arg2 = $2;        
         if (not $arg1 =~ /'.*'/){
             $arg1 = "'$arg1'";
         }
@@ -227,7 +226,7 @@ sub testConvert {
         }
         $line = "$arg1 != $arg2";
     } elsif ($line =~ /\s*!\s+(.*)/){
-        $line = "not ".$arg1;
+        $line = "not ".$1;
     } elsif ($line =~ /^\s*-n\s+('.*?'|\S+)/){
         $line = "len($1) != 0"; # string is nonzero
     } elsif ($line =~ /^\s*-z\s+('.*?'|\S+)/){
@@ -238,7 +237,18 @@ sub testConvert {
     } elsif ($line =~ /^\s*-r\s+('.*?'|\S+)/){
         $import{os} = 1;
         $line = "os.access(".listConvert($1).", os.R_OK)";
+    } elsif ($line =~ /^\s*(\d+)\s*$/){ # if just number
+        # $line = "int($1)";
+        $line = $line;
+    } elsif ($line =~ /^\$($var_re)$/){ # if variable
+        $line = $1;
+    } elsif ($line =~ /^\$(\d+)$/){ # if special variable
+        $import{sys} = 1;
+        $line = "sys.argv[$1]";
+    } elsif (not $line =~ /'.*'/){
+        $line = "'$line'";
     }
+    return $line;
 }
 
 sub exprConvert {
