@@ -55,7 +55,7 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
         $line = "print ".listConvert($1);
         # $line = "print ".$line;
-    } elsif ($line =~ /^\s*cd (.*)/){ # cd
+    } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
         $import{os} = 1;
         $line = "os.chdir('$1')";
     } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
