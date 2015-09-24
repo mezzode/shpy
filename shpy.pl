@@ -175,52 +175,90 @@ sub translate {
 
 sub exprConvert {
     my ($line) = @_;
+    chomp $line;
     my $string;
     my $regex;
+    my $token = 0;
+    if ($line =~ /^\s*\+/){
+        $token = 1; # escape first word;
+    }
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\d+) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\)|\d+)/){ # numeric operation
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # numeric operation
         my $arg1 = exprConvert($1);
         my $op = $2;
         my $arg2 = exprConvert($3);
+        if (not $arg1 =~ /^\d+$/){
+            $arg1 = "int($arg1)";
+        }
+        if (not $arg2 =~ /^\d+$/){
+            $arg2 = "int($arg2)";
+        }
         $line = "$arg1 $op $arg2"; 
+    # } elsif ($line =~){ # comparison
+    #     # comparison 
     } elsif ($line =~ /\( (.*) \)/){
         $line = exprConvert($1);
-    } elsif ($line =~ /('.*?'|\S+) : ('.*?'|\S+)/{
+    } elsif ($line =~ /('.*?'|\S+) : ('.*?'|\S+)/){
         $import{re} = 1;
         $string = $1;
         $regex = $2;
-        if (not $string =~ /'.*'/) $string = "'$string'";
-        if ($regex =~ /^'(.*)'$/) $regex = $1;
-        if $regex =~ /^\((.*)\)$/{
+        if (not $string =~ /'.*'/){
+            $string = "'$string'";
+        }
+        if ($regex =~ /^'(.*)'$/){
+            $regex = $1;
+        }
+        if ($regex =~ /^\((.*)\)$/){
             $regex = $1;
             $line = "re.search(r'$regex',$string).group()"; # get matching substring
         } else {
             $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
         }
-    } elsif ($line =~ /^\s*match\s+('.*?'|\S+)\s+('.*'|\S+)/{
+    } elsif ($line =~ /^\s*match\s+('.*?'|\S+)\s+('.*'|\S+)/ and not $token){
         $import{re} = 1;
         $string = $1;
         $regex = $2;
-        if (not $string =~ /'.*'/) $string = "'$string'";
-        if ($regex =~ /^'(.*)'$/) $regex = $1;
-        if $regex =~ /^\((.*)\)$/{
+        if (not $string =~ /'.*'/){
+            $string = "'$string'";
+        }
+        if ($regex =~ /^'(.*)'$/){
+            $regex = $1;
+        }
+        if ($regex =~ /^\((.*)\)$/){
             $regex = $1;
             $line = "re.search(r'$regex',$string).group()"; # get matching substring
         } else {
             $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
         }
-    } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/){
-        $string = $1;
-        if (not $string =~ /'.*'/) $string = "'$string'";
-        $line = "$string[$2-1:$2-1+$3]";
-    } elsif ($line =~ /^\s*index\s+('.*?'|\S+)\s+('.*'|\S+)/){
+    # } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/ and not $token){
+    #     $string = $1;
+    #     if (not $string =~ /'.*'/){
+    #         $string = "'$string'";
+    #     }
+    #     # $line = "$string[".$2."-1:".$2."-1+".$3."]";
+    #     $line = join "$string[",$2,"-1:",$2,"-1+",$3,"]";
+    } elsif ($line =~ /^\s*index\s+('.*?'|\S+)\s+('.*'|\S+)/ and not $token){
         $import{re} = 1;
         $string = $1;
-        if (not $string =~ /'.*'/) $string = "'$string'";
-        if ($regex =~ /'.*'/) $regex = $1;
+        if (not $string =~ /'.*'/){
+            $string = "'$string'";
+        }
+        if ($regex =~ /'.*'/){
+            $regex = $1;
+        }
         $line = "re.search(r'[$regex]',$string).start() + 1";
-    } elsif ($line =~ /^\s*length\s+('.*?'|\S+)/){
+    } elsif ($line =~ /^\s*length\s+('.*?'|\S+)/ and not $token){
         $line = "len($1)";
+    } elsif ($line =~ /^\s*(\d+)\s*$/){ # if just number
+        # $line = "int($1)";
+        $line = $line;
+    } elsif ($line =~ /^\$($var_re)$/){ # if variable
+        $line = $1;
+    } elsif ($line =~ /^\$(\d+)$/){ # if special variable
+        $import{sys} = 1;
+        $line = "sys.argv[$1]";
+    } elsif (not $line =~ /'.*'/){
+        $line = "'$line'";
     }
     # $line =~ /(<(?:[^<>]++|(?1))*>)/g; # for matching top-level angle brackets
     # $line =~ /(\((?:[^\(\)]++|(?1))*\))/g; # for matching top-level brackets
@@ -230,15 +268,15 @@ sub exprConvert {
     # foreach my $i (0..$#elems){
     #     if ($elems[$i] =~ /^'.*?'$/){ # if string
     #         next;
-    #     } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
-    #         $elems[$i] = $1;
+        # } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+        #     $elems[$i] = $1;
     #     # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
     #     #     $elems[$i] =~ s/\${/'+/g;
     #     #     $elems[$i] =~ s/}/+'/g;
     #     #     $elems[$i] = "'$elems[$i]'";
-    #     } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
-    #         $import{sys} = 1;
-    #         $elems[$i] = "sys.argv[$1]";
+        # } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+        #     $import{sys} = 1;
+        #     $elems[$i] = "sys.argv[$1]";
     #     } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
     #         next;
     #     } elsif ($elems[$i] =~ /^([|&<>=+\-*\/%]|[<>!]=)$/){ # if operator
@@ -251,5 +289,6 @@ sub exprConvert {
     #     }
     # }
     # $line = join(" ",@elems);
+    # print ">>$line<<\n";
     return $line;
 }
