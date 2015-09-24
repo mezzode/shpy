@@ -254,13 +254,14 @@ sub exprConvert {
         } else {
             $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
         }
-    # } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/ and not $token){
-    #     $string = $1;
-    #     if (not $string =~ /'.*'/){
-    #         $string = "'$string'";
-    #     }
-    #     # $line = "$string[".$2."-1:".$2."-1+".$3."]";
-    #     $line = join "$string[",$2,"-1:",$2,"-1+",$3,"]";
+    } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/ and not $token){
+        $string = $1;
+        if (not $string =~ /'.*'/){
+            $string = "'$string'";
+        }
+        # $line = "$string[".$2."-1:".$2."-1+".$3."]";
+        $line = "$string\[$2-1:$2-1+$3\]";
+        # $line = join "$string[",$2,"-1:",$2,"-1+",$3,"]";
     } elsif ($line =~ /^\s*index\s+('.*?'|\S+)\s+('.*'|\S+)/ and not $token){
         $import{re} = 1;
         $string = $1;
