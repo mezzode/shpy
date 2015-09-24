@@ -143,7 +143,9 @@ sub listConvert {
     my ($list) = @_;
     my @elems = $list =~ /('.*?'|\S+)/g;
     foreach my $i (0..$#elems){
-        if ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+        if ($elems[$i] =~ /^'.*?'$/){ # if string
+            next;
+        } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
         #     $elems[$i] =~ s/\${/'+/g;
@@ -157,7 +159,7 @@ sub listConvert {
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
             $import{glob} = 1;
             $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
-        } elsif (not $elems[$i] =~ /^'.*'$/) { # if string
+        } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
             $elems[$i] = "'$elems[$i]'";
         }
     }
@@ -186,13 +188,15 @@ sub exprConvert {
             $elems[$i] = "sys.argv[$1]";
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
+        } elsif ($elems[$i] =~ /^([|&<>=+\-*\/%]|[<>!]=)$/){ # if operator
+            next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
             $import{glob} = 1;
             $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
-        } elsif (not $elems[$i] =~ /^'.*'$/) { # if string
+        } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
             $elems[$i] = "'$elems[$i]'";
         }
     }
-    $list = join(" ",@elems);
-    return $list;
+    $line = join(" ",@elems);
+    return $line;
 }
