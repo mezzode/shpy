@@ -200,10 +200,10 @@ sub exprConvert {
         } else {
             $arg2 = exprConvert($arg2);
         }
-        if ($arg1 =~ /^\D+$/){
+        if ($arg1 =~ /^$var_re+$/){
             $arg1 = "int($arg1)";
         }
-        if ($arg2 =~ /^\D+$/){
+        if ($arg2 =~ /^$var_re+$/){
             $arg2 = "int($arg2)";
         }
         $line = "($arg1 $op $arg2)"; 
