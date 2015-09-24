@@ -174,10 +174,23 @@ sub translate {
 }
 
 sub exprConvert {
-    my ($list) = @_;
-    my @elems = $list =~ /('.*?'|\S+)/g;
+    my ($line) = @_;
+    $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
+    if $line =~ /(\((?:[^\(\)]++|(?1))*\)) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\))/{ # numeric operation
+        $arg1 = exprConvert($1);
+        $op = $2;
+        $arg2 = exprConvert($3);
+    }
+
+    # $line =~ /(<(?:[^<>]++|(?1))*>)/g; # for matching top-level angle brackets
+    # $line =~ /(\((?:[^\(\)]++|(?1))*\))/g; # for matching top-level brackets
+    # (\((?:[^\(\)]++|(?1))*\))
+
+    my @elems = $line =~ /('.*?'|\S+)/g;
     foreach my $i (0..$#elems){
-        if ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+        if ($elems[$i] =~ /^'.*?'$/){ # if string
+            next;
+        } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
         #     $elems[$i] =~ s/\${/'+/g;
