@@ -64,6 +64,8 @@ foreach $line (@shell) {
     } elsif ($line =~ /^\s*read\s+(.*)/){ # read
         $import{sys} = 1;
         $line = "$1 = sys.stdin.readline().rstrip()";
+    } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
+        $line = exprConvert($1);
     } elsif ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
@@ -167,4 +169,30 @@ sub translate {
     my ($line) = @_;
     # translate line
     return $line;
+}
+
+sub exprConvert {
+    my ($list) = @_;
+    my @elems = $list =~ /('.*?'|\S+)/g;
+    foreach my $i (0..$#elems){
+        if ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+            $elems[$i] = $1;
+        # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
+        #     $elems[$i] =~ s/\${/'+/g;
+        #     $elems[$i] =~ s/}/+'/g;
+        #     $elems[$i] = "'$elems[$i]'";
+        } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+            $import{sys} = 1;
+            $elems[$i] = "sys.argv[$1]";
+        } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
+            next;
+        } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
+            $import{glob} = 1;
+            $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
+        } elsif (not $elems[$i] =~ /^'.*'$/) { # if string
+            $elems[$i] = "'$elems[$i]'";
+        }
+    }
+    $list = join(" ",@elems);
+    return $list;
 }
