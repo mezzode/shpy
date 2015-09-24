@@ -175,13 +175,41 @@ sub translate {
 
 sub exprConvert {
     my ($line) = @_;
+    my $string;
+    my $regex;
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if $line =~ /(\((?:[^\(\)]++|(?1))*\)) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\))/{ # numeric operation
-        $arg1 = exprConvert($1);
-        $op = $2;
-        $arg2 = exprConvert($3);
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\))/){ # numeric operation
+        my $arg1 = exprConvert($1);
+        my $op = $2;
+        my $arg2 = exprConvert($3);
+        $line = "$arg1 $op $arg2"; 
+    } elsif ($line =~ /\( (.*) \)/){
+        $line = exprConvert($1);
+    } elsif ($line =~ /('.*?'|\S+) : ('.*?'|\S+)/{
+        $import{re} = 1;
+        $string = $1;
+        $regex = $2;
+        if (not $string =~ /'.*'/) $string = "'$string'";
+        if ($regex =~ /^'(.*)'$/) $regex = $1;
+        if $regex =~ /^\((.*)\)$/{
+            $regex = $1;
+            $line = "re.search(r'$regex',$string).group()"; # get matching substring
+        } else {
+            $line = "len(re.search(r'$regex',$string).group())"; # get number of matching chars
+        }
+    } elsif ($line =~ /^\s*substr\s+('.*?'|\S+)\s+('.*'|\S+)\s+('.*'|\S+)/){
+        $string = $1;
+        if (not $string =~ /'.*'/) $string = "'$string'";
+        $line = "$string[$2-1:$2-1+$3]";
+    } elsif ($line =~ /^\s*index\s+('.*?'|\S+)\s+('.*'|\S+)/){
+        $import{re} = 1;
+        $string = $1;
+        if (not $string =~ /'.*'/) $string = "'$string'";
+        if ($regex =~ /'.*'/) $regex = $1;
+        $line = "re.search(r'[$regex]',$string).start() + 1";
+    } elsif ($line =~ /^\s*length\s+('.*?'|\S+)/){
+        $line = "len($1)";
     }
-
     # $line =~ /(<(?:[^<>]++|(?1))*>)/g; # for matching top-level angle brackets
     # $line =~ /(\((?:[^\(\)]++|(?1))*\))/g; # for matching top-level brackets
     # (\((?:[^\(\)]++|(?1))*\))
