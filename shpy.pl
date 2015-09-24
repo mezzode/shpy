@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-# written by andrewt@cse.unsw.edu.au August 2015
-# as a starting point for COMP2041/9041 assignment 
+# written by Sean Batongbacal, September 2015
+# for COMP2041/9041 assignment 
 # http://cgi.cse.unsw.edu.au/~cs2041/assignment/shpy
 
 # shell keywords which need special handling
