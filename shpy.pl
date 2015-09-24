@@ -178,7 +178,7 @@ sub exprConvert {
     my $string;
     my $regex;
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\))/){ # numeric operation
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\d+) ([|&<>=+\-*\/%]|[<>!]=) (\((?:[^\(\)]++|(?1))*\)|\d+)/){ # numeric operation
         my $arg1 = exprConvert($1);
         my $op = $2;
         my $arg2 = exprConvert($3);
