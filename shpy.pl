@@ -38,13 +38,14 @@ foreach $line (@shell) {
     }
 
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
-        $var = $1;
-        $assigned = $2;
-        if ($assigned =~ /^\d+$/){ # number
-            $line = "$var = $assigned\n";
-        } else { # string
-            $line = "$var = '$assigned'";
-        }
+        # $var = $1;
+        # $assigned = $2;
+        # if ($assigned =~ /^\d+$/){ # number
+        #     $line = "$var = $assigned";
+        # } else { # string
+        #     $line = "$var = '$assigned'";
+        # }
+        $line = "$1 = ".listConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
         $line = "print ".listConvert($1);
         # $line = "print ".$line;
