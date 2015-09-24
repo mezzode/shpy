@@ -226,30 +226,30 @@ sub exprConvert {
     # $line =~ /(\((?:[^\(\)]++|(?1))*\))/g; # for matching top-level brackets
     # (\((?:[^\(\)]++|(?1))*\))
 
-    my @elems = $line =~ /('.*?'|\S+)/g;
-    foreach my $i (0..$#elems){
-        if ($elems[$i] =~ /^'.*?'$/){ # if string
-            next;
-        } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
-            $elems[$i] = $1;
-        # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
-        #     $elems[$i] =~ s/\${/'+/g;
-        #     $elems[$i] =~ s/}/+'/g;
-        #     $elems[$i] = "'$elems[$i]'";
-        } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
-            $import{sys} = 1;
-            $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
-            next;
-        } elsif ($elems[$i] =~ /^([|&<>=+\-*\/%]|[<>!]=)$/){ # if operator
-            next;
-        } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
-            $import{glob} = 1;
-            $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
-        } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
-            $elems[$i] = "'$elems[$i]'";
-        }
-    }
-    $line = join(" ",@elems);
+    # my @elems = $line =~ /('.*?'|\S+)/g;
+    # foreach my $i (0..$#elems){
+    #     if ($elems[$i] =~ /^'.*?'$/){ # if string
+    #         next;
+    #     } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+    #         $elems[$i] = $1;
+    #     # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
+    #     #     $elems[$i] =~ s/\${/'+/g;
+    #     #     $elems[$i] =~ s/}/+'/g;
+    #     #     $elems[$i] = "'$elems[$i]'";
+    #     } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+    #         $import{sys} = 1;
+    #         $elems[$i] = "sys.argv[$1]";
+    #     } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
+    #         next;
+    #     } elsif ($elems[$i] =~ /^([|&<>=+\-*\/%]|[<>!]=)$/){ # if operator
+    #         next;
+    #     } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
+    #         $import{glob} = 1;
+    #         $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
+    #     } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
+    #         $elems[$i] = "'$elems[$i]'";
+    #     }
+    # }
+    # $line = join(" ",@elems);
     return $line;
 }
