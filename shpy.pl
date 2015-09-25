@@ -265,7 +265,7 @@ sub exprConvert {
         $token = 1; # escape first word;
     }
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+?) ([+\-*\/%]) (\((?:[^\(\)]++|(?1))*\)|\S+?)/){ # numeric operation
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+?)\s+([+\-*\/%])\s+(\((?:[^\(\)]++|(?1))*\)|\S+?)/){ # numeric operation
         $arg1 = $1;
         $op = $2;
         $arg2 = $3;
@@ -286,22 +286,22 @@ sub exprConvert {
             $arg2 = "int($arg2)";
         }
         $line = "($arg1 $op $arg2)"; 
-    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) ([<>=]|[<>!]=) (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # comparison
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+([<>=]|[<>!]=)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){ # comparison
         $arg1 = exprConvert($1);
         $op = $2;
         $arg2 = exprConvert($3);
         $line = "$arg1 $op $arg2";
-    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) & (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # |
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+&\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){ # |
         $arg1 = exprConvert($1);
         $arg2 = exprConvert($2);
         $line = "$arg1 if $arg1 else $arg2";
-    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) & (\((?:[^\(\)]++|(?1))*\)|\S+)/){ # &
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+&\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){ # &
         $arg1 = exprConvert($1);
         $arg2 = exprConvert($2);
         $line = "$arg1 if $arg1 and $arg2 else 0";
     }elsif ($line =~ /^\s*\(\s+(.*)\s+\)/){
         $line = exprConvert($1);
-    } elsif ($line =~ /('.*?'|\S+) : ('.*?'|\S+)/){
+    } elsif ($line =~ /('.*?'|\S+)\s+:\s+('.*?'|\S+)/){
         $import{re} = 1;
         $string = $1;
         $regex = $2;
