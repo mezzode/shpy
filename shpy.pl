@@ -265,7 +265,7 @@ sub exprConvert {
         $token = 1; # escape first word;
     }
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+?)\s+([+\-*\/%])\s+(\((?:[^\(\)]++|(?1))*\)|\S+?)/){ # numeric operation
+    if ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+([+\-*\/%])\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){ # numeric operation
         $arg1 = $1;
         $op = $2;
         $arg2 = $3;
