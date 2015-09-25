@@ -279,11 +279,11 @@ sub exprConvert {
         } else {
             $arg2 = exprConvert($arg2);
         }
-        if ($arg1 =~ /^$var_re+$/){
-            $arg1 = "int($arg1)";
+        if (not $arg1 =~/^\d+$/ and $arg1 =~ /^\S+$/){ # if not an int or an expression
+            $arg1 = "int($arg1)"; # cast to int
         }
-        if ($arg2 =~ /^$var_re+$/){
-            $arg2 = "int($arg2)";
+        if (not $arg2 =~/^\d+$/ and $arg2 =~ /^\S+$/){ # if not an int or an expression
+            $arg2 = "int($arg2)"; # cast to int
         }
         $line = "($arg1 $op $arg2)"; 
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+([<>=]|[<>!]=)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){ # comparison
