@@ -27,7 +27,7 @@ $var_re = "[A-Za-z_][0-9A-Za-z_]*"; # shell variable regex
 
 # read
 if ($shell[0] =~ /^#!/) {
-    die if !($shell[0] =~ /^#!\/bin\/sh/); # if not shell, die
+    die if !($shell[0] =~ /^#!\/bin\/sh/ or $shell[0] =~ /^#!\/bin\/bash/); # if not shell, die
     shift @shell; # remove shebang
 }
 foreach $line (@shell) {
