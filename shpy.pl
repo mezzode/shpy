@@ -7,7 +7,7 @@
 # shell keywords which need special handling
 # currently not handling "!"
 # from https://www.gnu.org/software/bash/manual/html_node/Reserved-Word-Index.html#Reserved-Word-Index
-@keywords = ("[[.*]]","{.*}","case","do","done","elif","else","esac",
+@keywords = ("case","do","done","elif","else","esac",
             "fi","for","function","if","in","select",
             "then","time","until","while");
 
@@ -80,8 +80,12 @@ foreach $line (@shell) {
         die if $if == 0; # die if fi but not in if statement
         $if--;
         $line = "";
-    } else {
+    } elsif ($line and not keyword($line)){
         $line = translate($line);
+    } elsif ($line) {
+        # Lines we can't translate are turned into comments
+        $line =~ /\s*(.*)\s*/;
+        $line = "# $1";
     }
     if ($comment and $line){
         $line = "$line #$comment";
@@ -132,20 +136,26 @@ sub translate {
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
         $line = "subprocess.call([$line])";
-    } elsif ($line) {
+    } elsif ($line){
         # Lines we can't translate are turned into comments
-        $line = "# $line";
+        $line =~ /\s*(.*)\s*/;
+        $line = "# $1";
     } 
     return $line;
 }
 
 sub keyword {
     my $is_keyword = 0; # false
-    my ($in) = @_; # first argument
+    my ($line) = @_; # first argument
     # compare to array of known keywords
     foreach $word (@keywords){
-        $is_keyword = 1 if ($in =~ /^\s*$word/); # need to deal with substrings?
+        $is_keyword = 1 if ($line =~ /^\s*$word\s+/);
     }
+    $is_keyword = 1 if ($line =~ /^[^#'"]*\[\[.*\]\][^'"]*$/); # [[ ]]
+    $is_keyword = 1 if ($line =~ /^[^#'"]*{.*}[^'"]*$/); # { }
+    $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
+    $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
+    # "[[.*]]","{.*}","`.*`"
     return $is_keyword;
 }
 
