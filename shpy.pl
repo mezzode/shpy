@@ -122,7 +122,7 @@ sub translate {
         $import{sys} = 1;
         $line = "$1 = sys.stdin.readline().rstrip()";
     } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
-        $line = exprConvert($1);
+        $line = "print ".exprConvert($1);
     } elsif ($line =~ /^\s*test\s+(.*)/){ # test
         $line = testConvert($1);
     } elsif ($line and not keyword($line)){
