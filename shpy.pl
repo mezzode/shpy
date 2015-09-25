@@ -184,15 +184,15 @@ sub testConvert {
     my $arg2;
     my $op;
 
-    if ($line =~ /('.*?'|\S+) -nt ('.*?'|\S+)/){ # newer than
+    if ($line =~ /('.*?'|\S+)\s+-nt\s+('.*?'|\S+)/){ # newer than
         $arg1 = $1;
         $arg2 = $2;
         $line = $line; # to do
-    } elsif ($line =~ /('.*?'|\S+) -ot ('.*?'|\S+)/){ # older than
+    } elsif ($line =~ /('.*?'|\S+)\s+-ot\s+('.*?'|\S+)/){ # older than
         $arg1 = $1;
         $arg2 = $2;
         $line = $line; # to do
-    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+) (\-\S+) (\((?:[^\(\)]++|(?1))*\)|\S+)/){
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = testConvert($1);
         $op = $2;
         $arg2 = testConvert($3);
@@ -206,7 +206,7 @@ sub testConvert {
         } elsif ($op =~ /-o/){
             $line = "($arg1 or $arg2)"
         }
-    } elsif ($line =~ /('.*?'|\S+) = ('.*?'|\S+)/){
+    } elsif ($line =~ /('.*?'|\S+)\s+=\s+('.*?'|\S+)/){
         $arg1 = $1;
         $arg2 = $2;
         if (not $arg1 =~ /'.*'/){
@@ -216,7 +216,7 @@ sub testConvert {
             $arg2 = "'$arg2'";
         }
         $line = "$arg1 == $arg2";
-    } elsif ($line =~ /('.*?'|\S+) != ('.*?'|\S+)/){
+    } elsif ($line =~ /('.*?'|\S+)\s+!=\s+('.*?'|\S+)/){
         $arg1 = $1;
         $arg2 = $2;        
         if (not $arg1 =~ /'.*'/){
