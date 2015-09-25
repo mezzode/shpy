@@ -269,12 +269,12 @@ sub exprConvert {
         $arg1 = $1;
         $op = $2;
         $arg2 = $3;
-        if ($arg1 =~ /\((.*)\)/){
+        if ($arg1 =~ /\(\s+(.*)\s+\)/){
             $arg1 = exprConvert($1);
         } else {
             $arg1 = exprConvert($arg1);
         }
-        if ($arg2 =~ /\((.*)\)/){
+        if ($arg2 =~ /\(\s+(.*)\s+\)/){
             $arg2 = exprConvert($1);
         } else {
             $arg2 = exprConvert($arg2);
