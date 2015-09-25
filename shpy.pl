@@ -11,6 +11,8 @@
             "fi","for","function","if","in","select",
             "then","time","until","while");
 
+@no_translate = ("&&","||",";",);
+
 %int_test = ("-eq"=>"==",
              "-ge"=>">=",
              "-gt"=>">",
@@ -147,15 +149,31 @@ sub translate {
 sub keyword {
     my $is_keyword = 0; # false
     my ($line) = @_; # first argument
+    my $thing;
     # compare to array of known keywords
-    foreach $word (@keywords){
-        $is_keyword = 1 if ($line =~ /^\s*$word\s+/);
+    foreach $thing (@keywords){
+        # $is_keyword = 1 if ($line =~ /^\s*\Q$thing\E\s+/);
+        if ($line =~ /^\s*$thing\s+/){
+            $is_keyword = 1;
+        }
+    }
+    foreach $thing (@no_translate){ 
+        # $is_keyword = 1 if ($line =~ /^[^#'"]*\Q$thing\E[^'"]*$/);
+        if ($line =~ /^[^#'"]*\Q$thing\E[^'"]*$/){
+            $is_keyword = 1;
+        }
     }
     $is_keyword = 1 if ($line =~ /^[^#'"]*\[\[.*\]\][^'"]*$/); # [[ ]]
     $is_keyword = 1 if ($line =~ /^[^#'"]*{.*}[^'"]*$/); # { }
     $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
     $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
+    $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
     # "[[.*]]","{.*}","`.*`"
+    # "\[\[.*\]\]","{.*}","\`.*\`","[^\(]*\)","\".*\""
+    if (not $line =~ /^[^#'"]*expr[^'"]*$/ and not $line =~ /^[^#'"]*expr[^'"]*$/ and $line =~ /[<>\\]/){
+        $is_keyword = 1;
+    }
+    # print "$line\n" if $is_keyword;
     return $is_keyword;
 }
 
