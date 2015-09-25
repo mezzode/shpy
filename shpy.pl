@@ -116,7 +116,14 @@ sub translate {
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
         $line = "$1 = ".listConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
-        $line = "print ".listConvert($1);
+        $line = $1;
+        if ($line =~ /^\s*\-n\s+(.*)/){
+            # $line = "print ".listConvert($1).",";
+            $import{sys} = 1;
+            $line = "sys.stdout.write(".listConvert($1).")";
+        } else {
+            $line = "print ".listConvert($line);
+        }
         # $line = "print ".$line;
     } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
         $import{os} = 1;
