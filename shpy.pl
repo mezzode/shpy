@@ -120,9 +120,9 @@ sub translate {
         if ($line =~ /^\s*\-n\s+(.*)/){
             # $line = "print ".listConvert($1).",";
             $import{sys} = 1;
-            $line = "sys.stdout.write(".listConvert($1).")";
+            $line = "sys.stdout.write(".echoConvert($1).")";
         } else {
-            $line = "print ".listConvert($line);
+            $line = "print ".echoConvert($line);
         }
         # $line = "print ".$line;
     } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
@@ -187,7 +187,7 @@ sub keyword {
 # Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
-    my @elems = $list =~ /('.*?'|\$[^\$\s]+|\S+)/g;
+    my @elems = $list =~ /('.*?'|\S+)/g;
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
@@ -210,6 +210,37 @@ sub listConvert {
         }
     }
     $list = join(", ",@elems);
+    return $list;
+}
+
+sub echoConvert {
+    my ($list) = @_;
+    # my @elems = $list =~ /('.*?'|\S+)/g;
+    my @elems = $list =~ /('.*?'|\$[^\$\s]+|\S+|\s+)/g;
+    foreach my $i (0..$#elems){
+        if ($elems[$i] =~ /^'.*?'$/){ # if string
+            next;
+        } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+            $elems[$i] = $1;
+        # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
+        #     $elems[$i] =~ s/\${/'+/g;
+        #     $elems[$i] =~ s/}/+'/g;
+        #     $elems[$i] = "'$elems[$i]'";
+        } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+            $import{sys} = 1;
+            $elems[$i] = "sys.argv[$1]";
+        } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
+            next;
+        } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
+            $import{glob} = 1;
+            $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
+        } elsif ($elems[$i] =~ /^\$/) {
+        } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
+            $elems[$i] = "'$elems[$i]'";
+        }
+    }
+    # $list = join(", ",@elems);
+    $list = join(" + ",@elems);
     return $list;
 }
 
