@@ -111,7 +111,7 @@ sub translate {
     # my @words = ();
     # my @new = ();
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
-        $line = "$1 = ".echoConvert($2);
+        $line = "$1 = ".listConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
         $line = $1;
         if ($line =~ /^\s*\-n\s+(.*)/){
@@ -194,7 +194,7 @@ sub keyword {
 # Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
-    my @elems = $list =~ /('.*?'|\S+)/g;
+    my @elems = $list =~ /('.*?'|".*?"|\S+)/g;
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
@@ -224,7 +224,7 @@ sub listConvert {
                 $elems[$i] = "subprocess.check_output($elems[$i])";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
-            $elems[$i] = listConvert($1);
+            $elems[$i] = echoConvert($1);
         } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
@@ -307,7 +307,8 @@ sub echoConvert {
             $elems[$i] = "sys.argv[$1]";
         } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
-            $elems[$i] = "sys.argv[1:]"
+            # $elems[$i] = "sys.argv[1:]"
+            $elems[$i] = "' '.join(sys.argv[1:])"; # print in sh format
         } elsif ($elems[$i] =~ /^\$\*$/){ # if $*
             $import{sys} = 1;
             $elems[$i] = "' '.join(sys.argv[1:])";
