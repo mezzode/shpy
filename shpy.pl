@@ -360,6 +360,8 @@ sub testConvert {
     my $arg1;
     my $arg2;
     my $op;
+    # print "$line\n";
+    $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
 
     if ($line =~ /('.*?'|\S+)\s+-nt\s+('.*?'|\S+)/){ # newer than
         $arg1 = $1;
@@ -369,20 +371,37 @@ sub testConvert {
         $arg1 = $1;
         $arg2 = $2;
         $line = $line; # to do
-    } elsif ($line =~ /\s*!\s+(.*)/){
+    } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
+        # print "$line\n";
         $line = "not ".testConvert($1);
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $op = $2;
         $arg2 = $3;
-        $arg1 = testConvert($arg1);
-        $arg2 = testConvert($arg2);
+        # $arg1 = testConvert($arg1);
+        # $arg2 = testConvert($arg2);
         # print "$line\n";
         # print "$arg1 $op $arg2\n";
+        if ($arg1 =~ /\(\s+(.*)\s+\)/){
+            $arg1 = testConvert($1);
+        } else {
+            $arg1 = testConvert($arg1);
+        }
+        if ($arg2 =~ /\(\s+(.*)\s+\)/){
+            $arg2 = testConvert($1);
+        } else {
+            $arg2 = testConvert($arg2);
+        }
+        if (not $arg1 =~/^\d+$/ and $arg1 =~ /^\S+$/){ # if not an int or an expression
+            $arg1 = "int($arg1)"; # cast to int
+        }
+        if (not $arg2 =~/^\d+$/ and $arg2 =~ /^\S+$/){ # if not an int or an expression
+            $arg2 = "int($arg2)"; # cast to int
+        }
         foreach my $key (sort keys %int_test){
             if ($op =~ /$key/){
                 # print "$op $key\n";
-                $line = "(int($arg1) $int_test{$key} int($arg2))";
+                $line = "($arg1 $int_test{$key} $arg2)";
             }
         }
         if ($op =~ /-a/){
