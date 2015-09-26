@@ -153,6 +153,7 @@ sub translate {
     return $line;
 }
 
+# determines whether or not $line can be translated
 sub keyword {
     my $is_keyword = 0; # false
     my ($line) = @_; # first argument
@@ -173,7 +174,7 @@ sub keyword {
     $is_keyword = 1 if ($line =~ /^[^#'"]*\[\[.*\]\][^'"]*$/); # [[ ]]
     $is_keyword = 1 if ($line =~ /^[^#'"]*{.*}[^'"]*$/); # { }
     $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
-    $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
+    # $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
     $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
     # "[[.*]]","{.*}","`.*`"
     # "\[\[.*\]\]","{.*}","\`.*\`","[^\(]*\)","\".*\""
@@ -214,12 +215,15 @@ sub listConvert {
 }
 
 sub echoConvert {
-    my ($list) = @_;
-    # my @elems = $list =~ /('.*?'|\S+)/g;
-    my @elems = $list =~ /('.*?'|\$[^\$\s]+|\S+|\s+)/g;
+    my ($line) = @_;
+    # my @elems = $line =~ /('.*?'|\S+)/g;
+    my @elems = $line =~ /('.*?'|".*?"|\$[^\$\s]+|\S+|\s+)/g;
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
+        }
+        if ($elems[$i] =~ /^"(.*?)"$/){
+            $elems[$i] = echoConvert($1);
         } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
@@ -239,9 +243,9 @@ sub echoConvert {
             $elems[$i] = "'$elems[$i]'";
         }
     }
-    # $list = join(", ",@elems);
-    $list = join(" + ",@elems);
-    return $list;
+    # $line = join(", ",@elems);
+    $line = join(" + ",@elems);
+    return $line;
 }
 
 sub testConvert {
