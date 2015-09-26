@@ -110,7 +110,7 @@ sub translate {
     chomp $line;
     # my @words = ();
     # my @new = ();
-    if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
+    if ($line =~ /($var_re)=(\S.*?)\s*$/){ # variable assignment
         $line = "$1 = ".listConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*?)\s*$/){ # echo
         $line = $1;
@@ -122,18 +122,21 @@ sub translate {
             $line = "print ".echoConvert($line);
         }
         # $line = "print ".$line;
-    } elsif ($line =~ /^\s*cd\s+(.*)/){ # cd
+    } elsif ($line =~ /^\s*cd\s+(.*?)\s*$/){ # cd
         $import{os} = 1;
-        $line = "os.chdir('$1')";
-    } elsif ($line =~ /^\s*exit\s+([\d]*)/){ # exit
+        $line = "os.chdir(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*chmod\s+(\d{3})\s+(.*?)\s*$/){ # chmod
+        $import{os} = 1;
+        $line = "os.chmod(".echoConvert($2).",0$1)";
+    } elsif ($line =~ /^\s*exit\s+(.*?)\s*$/){ # exit
         $import{sys} = 1;
-        $line = "sys.exit($1)";
-    } elsif ($line =~ /^\s*read\s+(.*)/){ # read
+        $line = "sys.exit(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*read\s+(.*?)\s*$/){ # read
         $import{sys} = 1;
         $line = "$1 = sys.stdin.readline().rstrip()";
-    } elsif ($line =~ /^\s*expr\s+(.*)/){ # expr
+    } elsif ($line =~ /^\s*expr\s+(.*?)\s*$/){ # expr
         $line = "print ".exprConvert($1);
-    } elsif ($line =~ /^\s*test\s+(.*)/){ # test
+    } elsif ($line =~ /^\s*test\s+(.*?)\s*$/){ # test
         $line = testConvert($1);
     } elsif ($line and not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
