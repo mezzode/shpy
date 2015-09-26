@@ -369,6 +369,8 @@ sub testConvert {
         $arg1 = $1;
         $arg2 = $2;
         $line = $line; # to do
+    } elsif ($line =~ /\s*!\s+(.*)/){
+        $line = "not ".testConvert($1);
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $op = $2;
@@ -408,8 +410,6 @@ sub testConvert {
             $arg2 = "'$arg2'";
         }
         $line = "$arg1 != $arg2";
-    } elsif ($line =~ /\s*!\s+(.*)/){
-        $line = "not ".$1;
     } elsif ($line =~ /^\s*-n\s+('.*?'|\S+)/){
         $line = "len($1) != 0"; # string is nonzero
     } elsif ($line =~ /^\s*-z\s+('.*?'|\S+)/){
