@@ -155,6 +155,8 @@ sub translate {
         $line = "$1 = sys.stdin.readline().rstrip()";
     } elsif ($line =~ /^\s*expr\s+(.*?)\s*$/){ # expr
         $line = "print ".exprConvert($1);
+    } elsif ($line =~ /^\s*test\s*$/){ # test
+        $line = "False";
     } elsif ($line =~ /^\s*test\s+(.*?)\s*$/){ # test
         $line = testConvert($1);
     } elsif ($line and not keyword($line)){
