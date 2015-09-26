@@ -114,8 +114,8 @@ print @python;
 sub translate {
     my ($line) = @_;
     chomp $line;
-    my @words = ();
-    my @new = ();
+    # my @words = ();
+    # my @new = ();
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
         $line = "$1 = ".echoConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
@@ -144,9 +144,10 @@ sub translate {
     } elsif ($line and not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
-        @words = split(/\s+/,$line);
-        @new = map {"'$_'"} @words;
-        $line = join(",",@new);
+        # @words = split(/\s+/,$line);
+        # @new = map {"'$_'"} @words;
+        # $line = join(",",@new);
+        $line = listConvert($line);
         $line = "subprocess.call([$line])";
     } elsif ($line){
         # Lines we can't translate are turned into comments
@@ -224,8 +225,8 @@ sub echoConvert {
     my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$[^\$\s]+|\S+|\s+)/g;
     # print @elems;
     my $temp;
-    my @words = ();
-    my @new = ();
+    # my @words = ();
+    # my @new = ();
     foreach my $i (0..$#elems){
         # print ">>$elems[$i]<<\n";
         if ($elems[$i] =~ /^'.*?'$/){ # if string
@@ -239,9 +240,10 @@ sub echoConvert {
                 $elems[$i] = exprConvert($1);
             } else {
                 $import{subprocess} = 1;
-                @words = split(/\s+/,$line);
-                @new = map {"'$_'"} @words;
-                $line = join(",",@new);
+                # @words = split(/\s+/,$line);
+                # @new = map {"'$_'"} @words;
+                # $line = join(",",@new);
+                $line = listConvert($line);
                 $line = "subprocess.check_output([$line])";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
