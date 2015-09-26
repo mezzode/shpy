@@ -141,11 +141,11 @@ sub translate {
         # @words = split(/\s+/,$line);
         # @new = map {"'$_'"} @words;
         # $line = join(",",@new);
-        if ($line =~ /^([^\']+?)\s+\"?\$[@*]\"?\s+([^\']+?)\s*$/){ # if $@ or $* in middle
+        if ($line =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
             $line = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
-        } elsif ($line =~ /^(.*)\s+"?\$[@*]"?\s*$/){ # if $@ or $* is last
+        } elsif ($line =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
             $line = "[".listConvert($1)."] + sys.argv[1:]";
-        } elsif ($line =~ /^\s*"?\$[@*]"?\s+(.*)$/){ # if $@ or $* is first
+        } elsif ($line =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
             $line = "sys.argv[1:] + [".listConvert($1)."]";
         } else {
             $line = "[".listConvert($line)."]";
@@ -212,11 +212,11 @@ sub listConvert {
                 # $elems[$i] = join(",",@new);
                 # $elems[$i] = listConvert($elems[$i]);
                 # $elems[$i] = "subprocess.check_output([$elems[$i]])";
-                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$[@*]\"?\s+([^\']+?)\s*$/){ # if $@ or $* in middle
+                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
                     $elems[$i] = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
-                } elsif ($elems[$i] =~ /^(.*)\s+"?\$[@*]"?\s*$/){ # if $@ or $* is last
+                } elsif ($elems[$i] =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
                     $elems[$i] = "[".listConvert($1)."] + sys.argv[1:]";
-                } elsif ($elems[$i] =~ /^\s*"?\$[@*]"?\s+(.*)$/){ # if $@ or $* is first
+                } elsif ($elems[$i] =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
                     $elems[$i] = "sys.argv[1:] + [".listConvert($1)."]";
                 } else {
                     $elems[$i] = "[".listConvert($elems[$i])."]";
@@ -234,7 +234,7 @@ sub listConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^\$[@*]$/){ # if $@
+        } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^\$\#$/){ # if $#
@@ -280,11 +280,11 @@ sub echoConvert {
                 # $elems[$i] = join(",",@new);
                 # $elems[$i] = listConvert($elems[$i]);
                 # $elems[$i] = "subprocess.check_output([$elems[$i]])";
-                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$[@*]\"?\s+([^\']+?)\s*$/){ # if $@ or $* in middle
+                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
                     $elems[$i] = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
-                } elsif ($elems[$i] =~ /^(.*)\s+"?\$[@*]"?\s*$/){ # if $@ or $* is last
+                } elsif ($elems[$i] =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
                     $elems[$i] = "[".listConvert($1)."] + sys.argv[1:]";
-                } elsif ($elems[$i] =~ /^\s*"?\$[@*]"?\s+(.*)$/){ # if $@  or $* is first
+                } elsif ($elems[$i] =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
                     $elems[$i] = "sys.argv[1:] + [".listConvert($1)."]";
                 } else {
                     $elems[$i] = "[".listConvert($elems[$i])."]";
@@ -302,7 +302,7 @@ sub echoConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^\$[@*]$/){ # if $@
+        } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^\$\#$/){ # if $#
