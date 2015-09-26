@@ -187,10 +187,10 @@ sub keyword {
     $is_keyword = 1 if ($line =~ /^[^#'"]*{.*}[^'"]*$/); # { }
     # $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
     # $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
-    $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
+    # $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
     # "[[.*]]","{.*}","`.*`"
     # "\[\[.*\]\]","{.*}","\`.*\`","[^\(]*\)","\".*\""
-    if (not $line =~ /^[^#'"]*expr[^'"]*$/ and not $line =~ /^[^#'"]*expr[^'"]*$/ and $line =~ /[<>\\]/){
+    if ((not $line =~ /^[^#'"]*expr[^'"]*$/) and (not $line =~ /^[^#'"]*test[^'"]*$/) and ($line =~ /[<>\\]/)){
         $is_keyword = 1;
     }
     # print "$line\n" if $is_keyword;
