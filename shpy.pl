@@ -47,12 +47,12 @@ foreach $line (@shell) {
     #     $comment = $2;
     # }
 
-    if ($line =~ /(.*)#(.*)/){
+    if ($line =~ /(.*?)\s*#(.*)/){
         $line = $1;
-        chomp $line;
+        # chomp $line;
         $comment = $2;
     }
-
+    chomp $line;
     if ($line =~ /^\s*for\s+($var_re)\s+in\s+(.*)/) { # for
         $list = listConvert($2);
         $line = "for $1 in $list:";
@@ -113,6 +113,9 @@ print @python;
 
 sub translate {
     my ($line) = @_;
+    chomp $line;
+    my @words = ();
+    my @new = ();
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
         $line = "$1 = ".echoConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
@@ -141,7 +144,7 @@ sub translate {
     } elsif ($line and not keyword($line)){
         # print "import subprocess\n" and $imported{subprocess} = 1 if !exists $imported{subprocess};
         $import{subprocess} = 1;
-        @words = split(/\s/,$line);
+        @words = split(/\s+/,$line);
         @new = map {"'$_'"} @words;
         $line = join(",",@new);
         $line = "subprocess.call([$line])";
@@ -173,7 +176,7 @@ sub keyword {
     }
     $is_keyword = 1 if ($line =~ /^[^#'"]*\[\[.*\]\][^'"]*$/); # [[ ]]
     $is_keyword = 1 if ($line =~ /^[^#'"]*{.*}[^'"]*$/); # { }
-    $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
+    # $is_keyword = 1 if ($line =~ /^[^#'"]*\`.*\`[^'"]*$/); # ` `
     # $is_keyword = 1 if ($line =~ /^[^#'"]*\".*\"[^'"]*$/); # " "
     $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
     # "[[.*]]","{.*}","`.*`"
@@ -216,13 +219,32 @@ sub listConvert {
 
 sub echoConvert {
     my ($line) = @_;
+    chomp $line;
     # my @elems = $line =~ /('.*?'|\S+)/g;
-    my @elems = $line =~ /('.*?'|".*?"|\$[^\$\s]+|\S+|\s+)/g;
+    my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$[^\$\s]+|\S+|\s+)/g;
+    # print @elems;
+    my $temp;
+    my @words = ();
+    my @new = ();
     foreach my $i (0..$#elems){
+        # print ">>$elems[$i]<<\n";
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
         }
-        if ($elems[$i] =~ /^"(.*?)"$/){
+        if ($elems[$i] =~ /^`(.*?)`$/){
+            $temp = $1;
+            if ($temp =~ /^\s*test\s+(.*)/){
+                $elems[$i] = testConvert($1);
+            } elsif ($temp =~ /^\s*expr\s+(.*)/){
+                $elems[$i] = exprConvert($1);
+            } else {
+                $import{subprocess} = 1;
+                @words = split(/\s+/,$line);
+                @new = map {"'$_'"} @words;
+                $line = join(",",@new);
+                $line = "subprocess.check_output([$line])";
+            }
+        } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = echoConvert($1);
         } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
@@ -250,6 +272,7 @@ sub echoConvert {
 
 sub testConvert {
     my ($line) = @_;
+    chomp $line;
     my $arg1;
     my $arg2;
     my $op;
