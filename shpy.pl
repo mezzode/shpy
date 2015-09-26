@@ -216,8 +216,18 @@ sub listConvert {
                 # @words = split(/\s+/,$elems[$i]);
                 # @new = map {"'$_'"} @words;
                 # $elems[$i] = join(",",@new);
-                $elems[$i] = listConvert($elems[$i]);
-                $elems[$i] = "subprocess.check_output([$elems[$i]])";
+                # $elems[$i] = listConvert($elems[$i]);
+                # $elems[$i] = "subprocess.check_output([$elems[$i]])";
+                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
+                    $elems[$i] = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
+                } elsif ($elems[$i] =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
+                    $elems[$i] = "[".listConvert($1)."] + sys.argv[1:]";
+                } elsif ($elems[$i] =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
+                    $elems[$i] = "sys.argv[1:] + [".listConvert($1)."]";
+                } else {
+                    $elems[$i] = "[".listConvert($elems[$i])."]";
+                }
+                $elems[$i] = "subprocess.check_output($elems[$i])";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = listConvert($1);
@@ -271,8 +281,18 @@ sub echoConvert {
                 # @words = split(/\s+/,$elems[$i]);
                 # @new = map {"'$_'"} @words;
                 # $elems[$i] = join(",",@new);
-                $elems[$i] = listConvert($elems[$i]);
-                $elems[$i] = "subprocess.check_output([$elems[$i]])";
+                # $elems[$i] = listConvert($elems[$i]);
+                # $elems[$i] = "subprocess.check_output([$elems[$i]])";
+                if ($elems[$i] =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
+                    $elems[$i] = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
+                } elsif ($elems[$i] =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
+                    $elems[$i] = "[".listConvert($1)."] + sys.argv[1:]";
+                } elsif ($elems[$i] =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
+                    $elems[$i] = "sys.argv[1:] + [".listConvert($1)."]";
+                } else {
+                    $elems[$i] = "[".listConvert($elems[$i])."]";
+                }
+                $elems[$i] = "subprocess.check_output($elems[$i])";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = echoConvert($1);
