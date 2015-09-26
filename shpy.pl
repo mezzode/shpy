@@ -240,7 +240,7 @@ sub listConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^\$@$/){ # if $@
+        } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
@@ -305,7 +305,7 @@ sub echoConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^\$@$/){ # if $@
+        } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
