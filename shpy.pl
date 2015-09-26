@@ -144,6 +144,9 @@ sub translate {
         $import{shutil} = 1;
         # $line = "os.chdir(".echoConvert($1).")";
         $line = "shutil.move(".echoConvert($1).",".echoConvert($2).")";
+    } elsif ($line =~ /^\s*rm\s+(.*?)\s*$/){ # rm
+        $import{os} = 1;
+        $line = "os.remove(".echoConvert($1).")";
     } elsif ($line =~ /^\s*exit\s+(.*?)\s*$/){ # exit
         $import{sys} = 1;
         $line = "sys.exit(".echoConvert($1).")";
