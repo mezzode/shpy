@@ -243,6 +243,9 @@ sub listConvert {
         } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
+        } elsif ($elems[$i] =~ /^\$\#$/){ # if $#
+            $import{sys} = 1;
+            $elems[$i] = "len(sys.argv)";
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
@@ -308,6 +311,9 @@ sub echoConvert {
         } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
             $import{sys} = 1;
             $elems[$i] = "sys.argv[1:]"
+        } elsif ($elems[$i] =~ /^\$\#$/){ # if $#
+            $import{sys} = 1;
+            $elems[$i] = "len(sys.argv)";
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
