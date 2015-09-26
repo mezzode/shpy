@@ -140,6 +140,10 @@ sub translate {
         }
         $line = "print ' '.join(sorted(glob.glob($line)))"; # lists path too
         # $line = "print ' '.join([os.path.basename(x) for x in sorted(glob.glob($line))])"; # without path
+    } elsif ($line =~ /^\s*mv\s+(.*?)\s+(.*?)\s*$/){ # mv
+        $import{shutil} = 1;
+        # $line = "os.chdir(".echoConvert($1).")";
+        $line = "shutil.move(".echoConvert($1).",".echoConvert($2).")";
     } elsif ($line =~ /^\s*exit\s+(.*?)\s*$/){ # exit
         $import{sys} = 1;
         $line = "sys.exit(".echoConvert($1).")";
