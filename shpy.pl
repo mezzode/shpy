@@ -114,7 +114,7 @@ print @python;
 sub translate {
     my ($line) = @_;
     if ($line =~ /($var_re)=(\S.*)/){ # variable assignment
-        $line = "$1 = ".listConvert($2);
+        $line = "$1 = ".echoConvert($2);
     } elsif ($line =~ /^\s*echo\s+(.*)/){ # echo
         $line = $1;
         if ($line =~ /^\s*\-n\s+(.*)/){
