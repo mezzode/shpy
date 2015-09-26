@@ -368,11 +368,16 @@ sub testConvert {
         $arg2 = $2;
         $line = $line; # to do
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
-        $arg1 = testConvert($1);
+        $arg1 = $1;
         $op = $2;
-        $arg2 = testConvert($3);
+        $arg2 = $3;
+        $arg1 = testConvert($arg1);
+        $arg2 = testConvert($arg2);
+        # print "$line\n";
+        # print "$arg1 $op $arg2\n";
         foreach my $key (sort keys %int_test){
             if ($op =~ /$key/){
+                # print "$op $key\n";
                 $line = "(int($arg1) $int_test{$key} int($arg2))";
             }
         }
