@@ -38,16 +38,10 @@ foreach $line (@shell) {
     $comment = "";
     $else = 0; # flag to indicate if line should not be indented
 
-    # if ($line =~ /^\s*#(.*)/){ # if just a comment
-    #     $line = "";
-    #     $comment = $1;
-    # } elsif ($line =~ /(.*)#(.*)/){
-    #     $line = $1;
-    #     chomp $line;
-    #     $comment = $2;
-    # }
-
-    if ($line =~ /(.*?)\s*#(.*)/){
+    if ($line =~ /^\s*#(.*)/){ # if just a comment
+        $line = "";
+        $comment = $1;
+    } elsif ($line =~ /(.*?)\s+#(.*)/){
         $line = $1;
         # chomp $line;
         $comment = $2;
