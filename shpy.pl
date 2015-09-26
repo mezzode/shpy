@@ -128,6 +128,18 @@ sub translate {
     } elsif ($line =~ /^\s*chmod\s+(\d{3})\s+(.*?)\s*$/){ # chmod
         $import{os} = 1;
         $line = "os.chmod(".echoConvert($2).",0$1)";
+    } elsif ($line =~ /^\s*ls\s*$/){ # ls
+        $import{glob} = 1;
+        $line = "print ' '.join(sorted(glob.glob('*')))";
+    } elsif ($line =~ /^\s*ls\s+(.*?)\s*$/){ # ls
+        $import{glob} = 1;
+        # $import{os} = 1;
+        $line = $1;
+        if (not $line =~ /^'.*'$/) {
+            $line = "'$line'";
+        }
+        $line = "print ' '.join(sorted(glob.glob($line)))"; # lists path too
+        # $line = "print ' '.join([os.path.basename(x) for x in sorted(glob.glob($line))])"; # without path
     } elsif ($line =~ /^\s*exit\s+(.*?)\s*$/){ # exit
         $import{sys} = 1;
         $line = "sys.exit(".echoConvert($1).")";
