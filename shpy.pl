@@ -147,8 +147,16 @@ sub translate {
         # @words = split(/\s+/,$line);
         # @new = map {"'$_'"} @words;
         # $line = join(",",@new);
-        $line = listConvert($line);
-        $line = "subprocess.call([$line])";
+        if ($line =~ /^([^\']+?)\s+\"?\$@\"?\s+([^\']+?)\s*$/){ # if $@ in middle
+            $line = "[".listConvert($1)."] + sys.argv[1:] + [".listConvert($2)."]";
+        } elsif ($line =~ /^(.*)\s+"?\$@"?\s*$/){ # if $@ is last
+            $line = "[".listConvert($1)."] + sys.argv[1:]";
+        } elsif ($line =~ /^\s*"?\$@"?\s+(.*)$/){ # if $@ is first
+            $line = "sys.argv[1:] + [".listConvert($1)."]";
+        } else {
+            $line = "[".listConvert($line)."]";
+        }
+        $line = "subprocess.call($line)";
     } elsif ($line){
         # Lines we can't translate are turned into comments
         $line =~ /\s*(.*)\s*/;
@@ -196,6 +204,23 @@ sub listConvert {
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
+        }
+        if ($elems[$i] =~ /^`(.*?)`$/){
+            $temp = $1;
+            if ($temp =~ /^\s*test\s+(.*)/){
+                $elems[$i] = testConvert($1);
+            } elsif ($temp =~ /^\s*expr\s+(.*)/){
+                $elems[$i] = exprConvert($1);
+            } else {
+                $import{subprocess} = 1;
+                # @words = split(/\s+/,$elems[$i]);
+                # @new = map {"'$_'"} @words;
+                # $elems[$i] = join(",",@new);
+                $elems[$i] = listConvert($elems[$i]);
+                $elems[$i] = "subprocess.check_output([$elems[$i]])";
+            }
+        } elsif ($elems[$i] =~ /^"(.*?)"$/){
+            $elems[$i] = listConvert($1);
         } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
@@ -205,6 +230,9 @@ sub listConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
+        } elsif ($elems[$i] =~ /^\$@$/){ # if $@
+            $import{sys} = 1;
+            $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
@@ -240,11 +268,11 @@ sub echoConvert {
                 $elems[$i] = exprConvert($1);
             } else {
                 $import{subprocess} = 1;
-                # @words = split(/\s+/,$line);
+                # @words = split(/\s+/,$elems[$i]);
                 # @new = map {"'$_'"} @words;
-                # $line = join(",",@new);
-                $line = listConvert($line);
-                $line = "subprocess.check_output([$line])";
+                # $elems[$i] = join(",",@new);
+                $elems[$i] = listConvert($elems[$i]);
+                $elems[$i] = "subprocess.check_output([$elems[$i]])";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = echoConvert($1);
@@ -257,6 +285,9 @@ sub echoConvert {
         } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
+        } elsif ($elems[$i] =~ /^\$@$/){ # if $@
+            $import{sys} = 1;
+            $elems[$i] = "sys.argv[1:]"
         } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
