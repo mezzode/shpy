@@ -194,7 +194,7 @@ sub keyword {
 # Converts a list from Shell to Python. e.g. ($var 90 moo) becomes (var,90,'moo')
 sub listConvert {
     my ($list) = @_;
-    my @elems = $list =~ /('.*?'|".*?"|\S+)/g;
+    my @elems = $list =~ /(`.*?`|'.*?'|".*?"|\S+)/g;
     foreach my $i (0..$#elems){
         if ($elems[$i] =~ /^'.*?'$/){ # if string
             next;
