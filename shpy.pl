@@ -297,7 +297,7 @@ sub echoConvert {
     my ($line) = @_;
     # chomp $line;
     # my @elems = $line =~ /('.*?'|\S+)/g;
-    my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$(?:$var_re|[\d\@\#\*]+)|[^\$]+|\s+)/gs;
+    my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$(?:$var_re|[\d\@\#\*]+)|[^\$"']+|\s+)/gs;
     # print "$line\n";
     # print ">$_<\n" foreach @elems;
     # my @words = ();
