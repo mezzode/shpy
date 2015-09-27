@@ -1,0 +1,148 @@
+Date/Time                   Activity
+------------------------    ------------------------------------------------------------
+Mon Sep 28 02:20:06 2015    Add demo04
+Mon Sep 28 02:03:45 2015    Add demo03
+Mon Sep 28 02:02:54 2015    Add tester.sh
+Mon Sep 28 02:02:42 2015    Fix missing special variable translations
+Mon Sep 28 01:39:27 2015    Add demo02
+Mon Sep 28 01:34:15 2015    Add demo01
+Mon Sep 28 00:18:26 2015    Add test04 (args)
+Mon Sep 28 00:07:07 2015    Add new test03 (ls)
+Sun Sep 27 23:56:57 2015    Change test03 to demo00
+Sun Sep 27 23:55:49 2015    Update test03
+Sun Sep 27 23:51:22 2015    Add str casting to echoConvert
+Sun Sep 27 23:19:03 2015    Add test03
+Sun Sep 27 23:10:04 2015    Add test01 (test)
+Sun Sep 27 23:09:39 2015    Fix bug where 0 was translated to ''
+Sun Sep 27 22:32:03 2015    test00.py update
+Sun Sep 27 22:31:06 2015    Add test02 (echo)
+Sun Sep 27 22:30:00 2015    Fix echo translation not always translating quotes
+Sun Sep 27 22:26:37 2015    Fix echo translation
+Sun Sep 27 21:51:02 2015    Add lone echo translation
+Sun Sep 27 21:11:00 2015    test00 update
+Sun Sep 27 20:59:31 2015    Tweak to translate empty strings
+Sun Sep 27 20:25:10 2015    Fix missing brackets in test translation
+Sun Sep 27 20:04:47 2015    Add test file translations
+Sun Sep 27 19:25:39 2015    Add test -b translation
+Sun Sep 27 19:21:29 2015    Add more variable interpolation to test translation
+Sun Sep 27 19:11:19 2015    Add variable interpolation in test translation
+Sun Sep 27 19:08:37 2015    Tweak echo translation to allow for more cases
+Sun Sep 27 18:47:27 2015    Add test -nt and -ot translation
+Sun Sep 27 18:34:51 2015    Add $cant_translate flag
+Sun Sep 27 18:28:00 2015    Fix translation for -n and -z
+Sun Sep 27 16:11:43 2015    Fix nested test translation
+Sun Sep 27 16:07:28 2015    Tweak test -n and -z translation to use brackets
+Sun Sep 27 15:55:46 2015    Disable inaccurate ls with path translation
+Sun Sep 27 15:29:34 2015    Fix trailing newlines in backtick translation
+Sun Sep 27 15:08:33 2015    Fix ls translation to add newlines
+Sun Sep 27 13:53:40 2015    Fix infinite loop bug in backtick translation
+Sun Sep 27 03:11:53 2015    Fix testConvert not and nested translation
+Sun Sep 27 02:53:46 2015    Fix testConvert "not" translation
+Sun Sep 27 02:47:31 2015    Add default test translation
+Sun Sep 27 02:32:06 2015    Fix testConvert
+Sun Sep 27 01:52:28 2015    Add rm translation
+Sun Sep 27 01:46:50 2015    Add mv translation
+Sun Sep 27 01:38:11 2015    Add ls translation
+Sun Sep 27 00:49:04 2015    Add chmod translation and trailing whitespace guard
+Sun Sep 27 00:24:43 2015    Fix echo including trailing whitespace
+Sun Sep 27 00:14:38 2015    Fix lack of backtick translation for lists
+Sun Sep 27 00:08:53 2015    Assorted Fixes
+Sat Sep 26 23:58:49 2015    Add New $* Translation
+Sat Sep 26 23:52:36 2015    Revert "Add Translation of $*"
+Sat Sep 26 23:48:47 2015    Fix translation of $# to be len(sys.argv)-1
+Sat Sep 26 23:38:42 2015    Fix comments to require whitespace before #
+Sat Sep 26 23:25:09 2015    Add Translation of $*
+Sat Sep 26 23:11:31 2015    Add $# translation
+Sat Sep 26 23:07:59 2015    Disable Broken Lone Right Bracket Match
+Sat Sep 26 22:58:23 2015    Add test00.py for reference
+Sat Sep 26 22:56:06 2015    Fix to prevent warning message about interpolating @$ ($@$)
+Sat Sep 26 22:51:25 2015    Add More Cases for $@ Translation
+Sat Sep 26 22:48:24 2015    Partial Translation of $@
+Sat Sep 26 22:11:33 2015    Change subprocesses calls to use listConvert
+Sat Sep 26 21:56:51 2015    Add Experimental Backtick Translation
+Sat Sep 26 21:16:40 2015    Tweak to allow interpolation in variable assignment
+Sat Sep 26 21:10:11 2015    Experimental Double Quotes Translation
+Sat Sep 26 20:57:07 2015    Add echoConvert
+Sat Sep 26 20:34:50 2015    Fix Handling of Variables Without Spaces
+Fri Sep 25 20:01:29 2015    Add echo -n translation
+Fri Sep 25 19:18:47 2015    Extended Commenting out Untranslated Lines
+Fri Sep 25 18:31:14 2015    Fix Commenting Out Lines Which Cannot be Translated
+Fri Sep 25 17:58:22 2015    Add test00 testing translation of expr with brackets
+Fri Sep 25 17:56:53 2015    Tweak translation of expr to print result
+Fri Sep 25 17:55:39 2015    Fix exprConvert Typecasting
+Fri Sep 25 17:53:32 2015    Change exprConvert handling for bracket whitespace
+Fri Sep 25 17:47:37 2015    Fix for exprConvert getting minimal matching arguments
+Fri Sep 25 17:35:04 2015    Change testConvert to account for varied whitespace
+Fri Sep 25 17:33:26 2015    Change exprConvert to account for varied whitespace
+Fri Sep 25 17:07:36 2015    Change Shell Shebang Detection to Recognise Any Shell
+Fri Sep 25 17:00:26 2015    Fix Bug where Died if Shebang was not sh
+Fri Sep 25 01:43:37 2015    Add Translate Function and Fix Various Bugs
+Fri Sep 25 01:08:43 2015    Fix Typo in testConvert
+Fri Sep 25 00:56:25 2015    Add Experimental testConvert
+Fri Sep 25 00:28:44 2015    Fix exprConvert substr Translation
+Thu Sep 24 23:25:27 2015    Fix Variable Typecasting in exprConvert
+Thu Sep 24 22:07:18 2015    Fix exprConvert Handling of Variables
+Thu Sep 24 21:03:07 2015    Separate Operators for Expr
+Thu Sep 24 20:43:06 2015    Fix exprConvert so it can compile
+Thu Sep 24 20:10:51 2015    Comment listConvert out of exprConvert
+Thu Sep 24 20:08:43 2015    Fix Non-Bracketed Expressions for Expr
+Thu Sep 24 20:07:21 2015    Add match for expr
+Thu Sep 24 19:56:00 2015    More work on expr Translation
+Thu Sep 24 18:50:27 2015    In Progress exprConvert
+Thu Sep 24 18:49:48 2015    Skip Processing Strings in listConvert
+Thu Sep 24 15:49:36 2015    Change cd regex to account for whitespace
+Thu Sep 24 15:49:09 2015    Start to Add Expr Translation
+Thu Sep 24 15:35:57 2015    Experimental Improved Comment Detection
+Thu Sep 24 15:31:19 2015    Update Header Comment
+Thu Sep 24 15:30:32 2015    Remove Obsolete One-Step Method Code
+Thu Sep 24 15:29:25 2015    Change Variable Assignment to use listConvert
+Thu Sep 24 02:09:44 2015    Add While Loop Translation
+Thu Sep 24 01:57:39 2015    Change from setting to counting indent amounts
+Thu Sep 24 01:55:34 2015    Experimental Support for Multiple Indenting
+Thu Sep 24 01:48:58 2015    Improve Logic
+Thu Sep 24 01:26:03 2015    Enable Comments on Removed Lines
+Thu Sep 24 01:06:22 2015    If Statement Translations
+Thu Sep 24 00:33:05 2015    Add Single Quote Translation
+Thu Sep 24 00:17:39 2015    Add Translation of $1, $2, ...
+Thu Sep 24 00:17:06 2015    Split List on Whitespace instead of Space
+Wed Sep 23 23:44:14 2015    Change Echo Translation to Account for Whitespace
+Wed Sep 23 23:43:30 2015    Add Read Translation
+Wed Sep 23 23:32:17 2015    Add Filename Expansion Using Glob for ?*[]
+Wed Sep 23 23:31:37 2015    Add Missing Colon to For Loop
+Wed Sep 23 22:53:24 2015    Add For Loop Translation
+Wed Sep 23 22:52:53 2015    Add var_re for variable matching
+Wed Sep 23 22:31:39 2015    Fix keyword Function
+Wed Sep 23 22:18:04 2015    Add exit
+Wed Sep 23 22:05:13 2015    Change Over to Two-Step Method
+Wed Sep 23 21:53:23 2015    Add cd Parsing
+Wed Sep 23 21:53:05 2015    Change test.sh to Allow Other Subsets
+Wed Sep 23 21:49:14 2015    Start with Empty Python Array
+Wed Sep 23 21:48:44 2015    Fix Shebang Handling
+Wed Sep 23 21:47:58 2015    Start Using listConvert
+Wed Sep 23 21:17:14 2015    Add Function listConvert
+Wed Sep 23 21:16:42 2015    Improve Echo Regex
+Wed Sep 23 20:45:44 2015    Die if not Shell Script
+Wed Sep 23 19:53:29 2015    Change to Using Arrays
+Sat Sep 19 21:15:48 2015    Small Fixes
+Sat Sep 19 01:23:37 2015    Die if not Shell Script
+Sat Sep 19 01:16:50 2015    Move towards Two-step Translation
+Fri Sep 18 23:44:49 2015    Hash for Imported Modules
+Sun Sep 13 22:29:31 2015    Modify Print to Interpolate Variables
+Sun Sep 13 22:02:48 2015    Variable Assignment
+Sun Sep 13 21:50:36 2015    Restore truth0.sh
+Sun Sep 13 21:47:17 2015    Translate comments
+Sun Sep 13 20:47:43 2015    Test script
+Sun Sep 13 20:42:23 2015    Fix to import subprocess once only
+Sun Sep 13 20:35:08 2015    Single Line Commands
+Sun Sep 13 20:27:36 2015    Add .gitignore
+Sun Sep 13 18:40:59 2015    Add .gitattributes
+Sun Sep 06 22:39:13 2015    Python -u Flag
+Sun Sep 06 22:39:00 2015    Keyword Array Fix
+Fri Sep 04 12:17:43 2015    Keyword Regex Matching
+Fri Sep 04 12:15:52 2015    Filling out keywords and fixing for loop
+Fri Sep 04 11:46:36 2015    keyword function
+Fri Sep 04 11:20:47 2015    Notes and Echo
+Fri Sep 04 11:04:19 2015    Andrew's code
+Tue Sep 01 11:00:39 2015    files supplied for assignment
+
+git log --pretty=tformat:"%<(24)%cd    %s" --date=local
