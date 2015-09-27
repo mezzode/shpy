@@ -334,14 +334,14 @@ sub echoConvert {
         } elsif ($elems[$i] =~ /^\s*"(.*?)"\s*$/s){
             $elems[$i] = echoConvert($1);
         } elsif ($elems[$i] =~ /^\s*\$($var_re)\s*$/s){ # if variable
-            $elems[$i] = $1;
+            $elems[$i] = "str($1)";
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
         #     $elems[$i] =~ s/\${/'+/g;
         #     $elems[$i] =~ s/}/+'/g;
         #     $elems[$i] = "'$elems[$i]'";
         } elsif ($elems[$i] =~ /^\s*\$(\d+)\s*$/s){ # if special variable
             $import{sys} = 1;
-            $elems[$i] = "sys.argv[$1]";
+            $elems[$i] = "str(sys.argv[$1])";
         } elsif ($elems[$i] =~ /^\s*\$\@\s*$/s){ # if $@
             $import{sys} = 1;
             # $elems[$i] = "sys.argv[1:]"
@@ -351,7 +351,7 @@ sub echoConvert {
             $elems[$i] = "' '.join(sys.argv[1:])";
         } elsif ($elems[$i] =~ /^\s*\$\#\s*$/s){ # if $#
             $import{sys} = 1;
-            $elems[$i] = "(len(sys.argv) - 1)";
+            $elems[$i] = "str(len(sys.argv) - 1)";
         } elsif ($elems[$i] =~ /^\s*[\d]+\s*$/s){ # if number
             next;
         } elsif ($elems[$i] =~ /[?*\[\]]/s){ # file expansion

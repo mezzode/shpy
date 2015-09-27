@@ -9,7 +9,7 @@ if not (len('zero') == 0):
     print 'This is printed'
 else:
     print 'This is not'
-if not ((a == '0') and not (a == '1')):
+if not ((str(a) == '0') and not (str(a) == '1')):
     print 'This is printed'
 else:
     print 'This is not'
