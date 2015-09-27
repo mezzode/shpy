@@ -131,15 +131,15 @@ sub translate {
     } elsif ($line =~ /^\s*ls\s*$/){ # ls
         $import{glob} = 1;
         $line = "print '\\n'.join(sorted(glob.glob('*')))";
-    } elsif ($line =~ /^\s*ls\s+(.*?)\s*$/){ # ls
-        $import{glob} = 1;
-        # $import{os} = 1;
-        $line = $1;
-        if (not $line =~ /^'.*'$/) {
-            $line = "'$line'";
-        }
-        $line = "print ' '.join(sorted(glob.glob($line)))"; # lists path too
-        # $line = "print ' '.join([os.path.basename(x) for x in sorted(glob.glob($line))])"; # without path
+    # } elsif ($line =~ /^\s*ls\s+(.*?)\s*$/){ # ls with path
+    #     $import{glob} = 1;
+    #     # $import{os} = 1;
+    #     $line = $1;
+    #     if (not $line =~ /^'.*'$/) {
+    #         $line = "'$line'";
+    #     }
+    #     # $line = "print ' '.join(sorted(glob.glob($line)))"; # lists path too
+    #     $line = "print ' '.join([os.path.basename(x) for x in sorted(glob.glob($line))])"; # without path
     } elsif ($line =~ /^\s*mv\s+(.*?)\s+(.*?)\s*$/){ # mv
         $import{shutil} = 1;
         # $line = "os.chdir(".echoConvert($1).")";
