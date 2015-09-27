@@ -245,7 +245,7 @@ sub listConvert {
                 } else {
                     $elems[$i] = "[".listConvert($elems[$i])."]";
                 }
-                $elems[$i] = "subprocess.check_output($elems[$i])";
+                $elems[$i] = "subprocess.check_output($elems[$i]).rstrip()";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = echoConvert($1);
@@ -286,7 +286,6 @@ sub echoConvert {
     # my @elems = $line =~ /('.*?'|\S+)/g;
     my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$[^\$\s]+|\S+|\s+)/g;
     # print @elems;
-    my $temp;
     # my @words = ();
     # my @new = ();
     foreach my $i (0..$#elems){
@@ -316,7 +315,7 @@ sub echoConvert {
                 } else {
                     $elems[$i] = "[".listConvert($elems[$i])."]";
                 }
-                $elems[$i] = "subprocess.check_output($elems[$i])";
+                $elems[$i] = "subprocess.check_output($elems[$i]).rstrip()";
             }
         } elsif ($elems[$i] =~ /^"(.*?)"$/){
             $elems[$i] = echoConvert($1);
