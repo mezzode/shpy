@@ -130,7 +130,7 @@ sub translate {
         $line = "os.chmod(".echoConvert($2).",0$1)";
     } elsif ($line =~ /^\s*ls\s*$/){ # ls
         $import{glob} = 1;
-        $line = "print ' '.join(sorted(glob.glob('*')))";
+        $line = "print '\\n'.join(sorted(glob.glob('*')))";
     } elsif ($line =~ /^\s*ls\s+(.*?)\s*$/){ # ls
         $import{glob} = 1;
         # $import{os} = 1;
