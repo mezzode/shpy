@@ -1,19 +1,30 @@
 #!/bin/sh
-# prints range between two numbers, inclusive
+# prints range between first two args and points at third arg if in range
 a=$1
 b=$2
+c=$3
 if test $a -lt $b
 then
     while test $a -le $b
-    do # range up
-        echo $a
+    do # range up        
+        if test $a -eq $c
+        then
+            echo "$a <<"
+        else
+            echo $a
+        fi
         a=`expr $a + 1` # increment
     done
 else
     # echo "$1 is not smaller than $2"
     while test $a -ge $b
     do # range down
-        echo $a
-        a=`expr $a - 1` # decrement
+        if test $a -eq $c
+        then
+            echo "$a <<"
+        else
+            echo $a
+        fi
+        a=`expr $a - 1` # increment
     done
 fi
