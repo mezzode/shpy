@@ -224,10 +224,10 @@ sub listConvert {
             next;
         }
         if ($elems[$i] =~ /^`(.*?)`$/){
-            $temp = $1;
-            if ($temp =~ /^\s*test\s+(.*)/){
+            $elems[$i] = $1;
+            if ($elems[$i] =~ /^\s*test\s+(.*)/){
                 $elems[$i] = testConvert($1);
-            } elsif ($temp =~ /^\s*expr\s+(.*)/){
+            } elsif ($elems[$i] =~ /^\s*expr\s+(.*)/){
                 $elems[$i] = exprConvert($1);
             } else {
                 $import{subprocess} = 1;
@@ -295,10 +295,10 @@ sub echoConvert {
             next;
         }
         if ($elems[$i] =~ /^`(.*?)`$/){
-            $temp = $1;
-            if ($temp =~ /^\s*test\s+(.*)/){
+            $elems[$i] = $1;
+            if ($elems[$i] =~ /^\s*test\s+(.*)/){
                 $elems[$i] = testConvert($1);
-            } elsif ($temp =~ /^\s*expr\s+(.*)/){
+            } elsif ($elems[$i] =~ /^\s*expr\s+(.*)/){
                 $elems[$i] = exprConvert($1);
             } else {
                 $import{subprocess} = 1;
