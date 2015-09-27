@@ -95,7 +95,7 @@ foreach $line (@shell) {
     } elsif ($comment and not $line){
         $line = "#$comment";
     }
-    next if not $line; # skip blank lines
+    next if $line =~ /^\s*$/; # skip blank lines
     $line .= "\n";
     # $line = "    $line" if $loop; # indent if in for loop
     # $line = "    $line" if $if and not $else; # indent if in if statement
@@ -365,7 +365,7 @@ sub echoConvert {
     }
     # $line = join(", ",@elems);
     $line = join(" + ",@elems);
-    $line = "''" if not $line;
+    $line = "''" if $line eq '';
     return $line;
 }
 
