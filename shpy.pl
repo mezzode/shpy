@@ -429,9 +429,9 @@ sub testConvert {
         }
         $line = "$arg1 != $arg2";
     } elsif ($line =~ /^\s*-n\s+('.*?'|\S+)/){
-        $line = "len($1) != 0"; # string is nonzero
+        $line = "(len($1) != 0)"; # string is nonzero
     } elsif ($line =~ /^\s*-z\s+('.*?'|\S+)/){
-        $line = "len($1) == 0"; # string is nonzero
+        $line = "(len($1) == 0)"; # string is nonzero
     } elsif ($line =~ /^\s*-d\s+('.*?'|\S+)/){
         $import{os} = 1;
         $line = "os.path.isdir(".listConvert($1).")";
