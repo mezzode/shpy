@@ -12,6 +12,7 @@
             "then","time","until","while");
 
 @no_translate = ("&&","||",";",);
+$cant_translate = 0;
 
 %int_test = ("-eq"=>"==",
              "-ge"=>">=",
@@ -37,6 +38,7 @@ foreach $line (@shell) {
     chomp $line;
     $comment = "";
     $else = 0; # flag to indicate if line should not be indented
+    $cant_translate = 0;
 
     if ($line =~ /^\s*#(.*)/){ # if just a comment
         $line = "";
@@ -80,6 +82,11 @@ foreach $line (@shell) {
         $line = translate($line);
     } elsif ($line) {
         # Lines we can't translate are turned into comments
+        # $line =~ /\s*(.*)\s*/;
+        # $line = "# $1";
+        $cant_translate = 1;
+    }
+    if ($cant_translate){
         $line =~ /\s*(.*)\s*/;
         $line = "# $1";
     }
@@ -108,6 +115,7 @@ print @python;
 sub translate {
     my ($line) = @_;
     chomp $line;
+    # $cant_translate = 0;
     # my @words = ();
     # my @new = ();
     if ($line =~ /($var_re)=(\S.*?)\s*$/){ # variable assignment
@@ -177,8 +185,9 @@ sub translate {
         $line = "subprocess.call($line)";
     } elsif ($line){
         # Lines we can't translate are turned into comments
-        $line =~ /\s*(.*)\s*/;
-        $line = "# $1";
+        # $line =~ /\s*(.*)\s*/;
+        # $line = "# $1";
+        $cant_translate = 1;
     } 
     return $line;
 }
