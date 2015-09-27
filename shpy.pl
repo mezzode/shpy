@@ -395,7 +395,10 @@ sub testConvert {
         $arg1 = echoConvert($1);
         $arg2 = echoConvert($2);
         $line = "os.path.exists($arg2) and (not os.path.exists($arg1) or os.stat($arg2).st_mtime > os.stat($arg1).st_mtime)";
-    # } elsif ($line =~ /^\s*\-b\s+/{
+    } elsif ($line =~ /^\s*\-b\s+('.*?'|".*?"|\S+)/{ # -b
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "stat.S_ISBLK(os.stat(".echoConvert($1).").st_mode)";
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
         # $arg1 = "\( $1 \)";
