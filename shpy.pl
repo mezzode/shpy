@@ -370,6 +370,7 @@ sub testConvert {
     my $op;
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
     if ($line =~ /('.*?'|".*?"|\S+)\s+-nt\s+('.*?'|".*?"|\S+)/){ # newer than
+        $import{os} = 1;
         # $arg1 = $1;
         # $arg2 = $2;
         # if (not $arg1 =~ /'.*'/){
@@ -382,6 +383,7 @@ sub testConvert {
         $arg2 = echoConvert($2);
         $line = "os.path.exists($arg1) and (not os.path.exists($arg2) or os.stat($arg1).st_mtime > os.stat($arg2).st_mtime)";
     } elsif ($line =~ /('.*?'|".*?"|\S+)\s+-ot\s+('.*?'|".*?"|\S+)/){ # older than
+        $import{os} = 1;
         # $arg1 = $1;
         # $arg2 = $2;
         # if (not $arg1 =~ /'.*'/){
@@ -393,6 +395,7 @@ sub testConvert {
         $arg1 = echoConvert($1);
         $arg2 = echoConvert($2);
         $line = "os.path.exists($arg2) and (not os.path.exists($arg1) or os.stat($arg2).st_mtime > os.stat($arg1).st_mtime)";
+    # } elsif ($line =~ /^\s*\-b\s+/{
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
         # $arg1 = "\( $1 \)";
@@ -409,19 +412,19 @@ sub testConvert {
         $arg1 = testConvert($arg1);
         # print ">>$arg1<<\n";
         $line = "not ".$arg1;
-    } elsif ($line =~ /^\s*\-n\s+('.*?'|\S+)/ or $line =~ /^\s*\(\s+\-n\s+('.*?'|\S+)\s+\)/){ # -n
+    } elsif ($line =~ /^\s*\-n\s+('.*?'|".*?"|\S+)/ or $line =~ /^\s*\(\s+\-n\s+('.*?'|".*?"|\S+)\s+\)/){ # -n
         # $line = $1;
         $line = echoConvert($1);
         $line = "(len($line) != 0)"; # string is nonzero
-    } elsif ($line =~ /^\s*\-z\s+('.*?'|\S+)/ or $line =~ /^\s*\(\s+\-z\s+('.*?'|\S+)\s+\)/){ # -z
+    } elsif ($line =~ /^\s*\-z\s+('.*?'|".*?"|\S+)/ or $line =~ /^\s*\(\s+\-z\s+('.*?'|".*?"|\S+)\s+\)/){ # -z
         $line = echoConvert($1);
         $line = "(len($line) == 0)"; # string is zero
-    } elsif ($line =~ /^\s*-d\s+('.*?'|\S+)/){
+    } elsif ($line =~ /^\s*-d\s+('.*?'|".*?"|\S+)/){
         $import{os} = 1;
-        $line = "os.path.isdir(".listConvert($1).")";
-    } elsif ($line =~ /^\s*-r\s+('.*?'|\S+)/){
+        $line = "os.path.isdir(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*-r\s+('.*?'|".*?"|\S+)/){
         $import{os} = 1;
-        $line = "os.access(".listConvert($1).", os.R_OK)";
+        $line = "os.access(".echoConvert($1).", os.R_OK)";
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $op = $2;
@@ -457,10 +460,10 @@ sub testConvert {
         } elsif ($op =~ /-o/){
             $line = "($arg1 or $arg2)"
         }
-    # } elsif ($line =~ /(.*?)\s+=\s+(.*?)\s*$/){
+    # } elsif ($line =~ /('.*?'|".*?"|\S+)\s+=\s+('.*?'|".*?"|\S+)\s*$/){
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+=\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
-        $arg1 = $1;
-        $arg2 = $2;
+        # $arg1 = $1;
+        # $arg2 = $2;
         # print "$line\n";
         # print "$arg1 = $arg2\n";
         $arg1 = echoConvert($1);
@@ -490,9 +493,9 @@ sub testConvert {
         #     $arg2 = "'$arg2'";
         # }
         $line = "($arg1 == $arg2)";
-    } elsif ($line =~ /('.*?'|\S+)\s+!=\s+('.*?'|\S+)/){
-        $arg1 = $1;
-        $arg2 = $2;        
+    } elsif ($line =~ /('.*?'|".*?"|\S+)\s+!=\s+('.*?'|".*?"|\S+)/){
+        $arg1 = echoConvert($1);
+        $arg2 = echoConvert($2);        
         if (not $arg1 =~ /'.*'/){
             $arg1 = "'$arg1'";
         }
