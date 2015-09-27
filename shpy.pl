@@ -120,6 +120,8 @@ sub translate {
     # my @new = ();
     if ($line =~ /($var_re)=(\S.*?)\s*$/){ # variable assignment
         $line = "$1 = ".listConvert($2);
+    } elsif ($line =~ /^\s*echo\s*$/){ # echo
+        $line = "print '\\n'";
     } elsif ($line =~ /^\s*echo\s+(.*?)\s*$/){ # echo
         $line = $1;
         if ($line =~ /^\s*\-n\s+(.*)/){
