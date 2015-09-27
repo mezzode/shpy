@@ -399,6 +399,62 @@ sub testConvert {
         $import{os} = 1;
         $import{stat} = 1;
         $line = "stat.S_ISBLK(os.stat(".echoConvert($1).").st_mode)";
+    } elsif ($line =~ /^\s*\-c\s+('.*?'|".*?"|\S+)/{ # -c
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "stat.S_ISCHR(os.stat(".echoConvert($1).").st_mode)";
+    } elsif ($line =~ /^\s*\-d\s+('.*?'|".*?"|\S+)/){ # -d
+        $import{os} = 1;
+        $line = "os.path.isdir(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*\-e\s+('.*?'|".*?"|\S+)/{ # -e
+        $import{os} = 1;
+        $line = "os.path.exists(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*\-f\s+('.*?'|".*?"|\S+)/{ # -f
+        $import{os} = 1;
+        $line = "os.path.isfile(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*\-g\s+('.*?'|".*?"|\S+)/{ # -g
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "os.stat(".echoConvert($1).").st_mode & stat.S_ISUID";
+    } elsif ($line =~ /^\s*\-G\s+('.*?'|".*?"|\S+)/{ # -G
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "os.stat(".echoConvert($1).").st_gid == os.getegid()";
+    } elsif ($line =~ /^\s*\-[hL]\s+('.*?'|".*?"|\S+)/{ # -h or -L
+        $import{os} = 1;
+        $line = "os.path.islink(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*\-k\s+('.*?'|".*?"|\S+)/{ # -k
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "os.stat(".echoConvert($1).").st_mode & stat.S_ISVTX";
+    } elsif ($line =~ /^\s*\-O\s+('.*?'|".*?"|\S+)/{ # -O
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "os.stat(".echoConvert($1).").st_uid == os.getegid()";
+    } elsif ($line =~ /^\s*\-p\s+('.*?'|".*?"|\S+)/{ # -p
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "stat.S_ISFIFO(os.stat(".echoConvert($1).").st_mode)";
+    } elsif ($line =~ /^\s*\-r\s+('.*?'|".*?"|\S+)/){ # -r
+        $import{os} = 1;
+        $line = "os.access(".echoConvert($1).", os.R_OK)";
+    } elsif ($line =~ /^\s*\-s\s+('.*?'|".*?"|\S+)/{ # -s
+        $import{os} = 1;
+        $line = "os.path.getsize(".echoConvert($1).") > 0";
+    } elsif ($line =~ /^\s*\-S\s+('.*?'|".*?"|\S+)/{ # -S
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "stat.S_ISSOCK(os.stat(".echoConvert($1).").st_mode)";
+    } elsif ($line =~ /^\s*\-u\s+('.*?'|".*?"|\S+)/{ # -u
+        $import{os} = 1;
+        $import{stat} = 1;
+        $line = "os.stat(".echoConvert($1).").st_mode & stat.S_ISGID";
+    } elsif ($line =~ /^\s*\-w\s+('.*?'|".*?"|\S+)/){ # -w
+        $import{os} = 1;
+        $line = "os.access(".echoConvert($1).", os.W_OK)";
+    } elsif ($line =~ /^\s*\-x\s+('.*?'|".*?"|\S+)/){ # -x
+        $import{os} = 1;
+        $line = "os.access(".echoConvert($1).", os.X_OK)";
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
         # $arg1 = "\( $1 \)";
@@ -422,12 +478,6 @@ sub testConvert {
     } elsif ($line =~ /^\s*\-z\s+('.*?'|".*?"|\S+)/ or $line =~ /^\s*\(\s+\-z\s+('.*?'|".*?"|\S+)\s+\)/){ # -z
         $line = echoConvert($1);
         $line = "(len($line) == 0)"; # string is zero
-    } elsif ($line =~ /^\s*-d\s+('.*?'|".*?"|\S+)/){
-        $import{os} = 1;
-        $line = "os.path.isdir(".echoConvert($1).")";
-    } elsif ($line =~ /^\s*-r\s+('.*?'|".*?"|\S+)/){
-        $import{os} = 1;
-        $line = "os.access(".echoConvert($1).", os.R_OK)";
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $op = $2;
