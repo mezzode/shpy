@@ -372,11 +372,23 @@ sub testConvert {
     if ($line =~ /('.*?'|\S+)\s+-nt\s+('.*?'|\S+)/){ # newer than
         $arg1 = $1;
         $arg2 = $2;
-        $line = $line; # to do
+        if (not $arg1 =~ /'.*'/){
+            $arg1 = "'$arg1'";
+        }
+        if (not $arg2 =~ /'.*'/){
+            $arg2 = "'$arg2'";
+        }
+        $line = "os.path.exists($arg1) and (not os.path.exists($arg2) or os.stat($arg1).st_mtime > os.stat($arg2).st_mtime)";
     } elsif ($line =~ /('.*?'|\S+)\s+-ot\s+('.*?'|\S+)/){ # older than
         $arg1 = $1;
         $arg2 = $2;
-        $line = $line; # to do
+        if (not $arg1 =~ /'.*'/){
+            $arg1 = "'$arg1'";
+        }
+        if (not $arg2 =~ /'.*'/){
+            $arg2 = "'$arg2'";
+        }
+        $line = "os.path.exists($arg2) and (not os.path.exists($arg1) or os.stat($arg2).st_mtime > os.stat($arg1).st_mtime)";
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
         # $arg1 = "\( $1 \)";
