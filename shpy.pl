@@ -359,6 +359,7 @@ sub echoConvert {
     }
     # $line = join(", ",@elems);
     $line = join(" + ",@elems);
+    $line = "''" if not $line;
     return $line;
 }
 
