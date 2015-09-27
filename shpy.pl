@@ -372,7 +372,14 @@ sub testConvert {
         $line = $line; # to do
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
-        $line = "not ".testConvert($1);
+        $arg1 = $1;
+        if ($arg1 =~ /^\s+\(\s+(.*)\s+\)\s+$/){
+            $arg1 = testConvert($1);
+        } else {
+            $arg1 = testConvert($arg1);
+        }
+        # print ">>$arg1<<\n";
+        $line = "not ".$arg1;
     } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+(\-\S+)\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $op = $2;
@@ -408,16 +415,39 @@ sub testConvert {
         } elsif ($op =~ /-o/){
             $line = "($arg1 or $arg2)"
         }
-    } elsif ($line =~ /('.*?'|\S+)\s+=\s+('.*?'|\S+)/){
+    # } elsif ($line =~ /(.*?)\s+=\s+(.*?)\s*$/){
+    } elsif ($line =~ /(\((?:[^\(\)]++|(?1))*\)|\S+)\s+=\s+(\((?:[^\(\)]++|(?1))*\)|\S+)/){
         $arg1 = $1;
         $arg2 = $2;
-        if (not $arg1 =~ /'.*'/){
-            $arg1 = "'$arg1'";
+        # print "$line\n";
+        # print "$arg1 = $arg2\n";
+        $arg1 = echoConvert($1);
+        $arg2 = echoConvert($2);
+        # $arg1 = testConvert($1);
+        # $arg2 = testConvert($2);
+        # if ($arg1 =~ /\(\s+(.*)\s+\)/){
+        #     $arg1 = testConvert($1);
+        # } else {
+        #     $arg1 = testConvert($arg1);
+        # }
+        # if ($arg2 =~ /\(\s+(.*)\s+\)/){
+        #     $arg2 = testConvert($1);
+        # } else {
+        #     $arg2 = testConvert($arg2);
+        # }
+        if ($arg1 =~/^\d+$/){ # if number
+            $arg1 = "'$arg1'"; # cast to str
         }
-        if (not $arg2 =~ /'.*'/){
-            $arg2 = "'$arg2'";
-        }
-        $line = "$arg1 == $arg2";
+        if ($arg2 =~/^\d+$/){ # if number
+            $arg2 = "'$arg2'"; # cast to str
+        } 
+        # if (not $arg1 =~ /'.*'/){
+        #     $arg1 = "'$arg1'";
+        # }
+        # if (not $arg2 =~ /'.*'/){
+        #     $arg2 = "'$arg2'";
+        # }
+        $line = "($arg1 == $arg2)";
     } elsif ($line =~ /('.*?'|\S+)\s+!=\s+('.*?'|\S+)/){
         $arg1 = $1;
         $arg2 = $2;        
