@@ -120,7 +120,7 @@ sub translate {
     # my @new = ();
     if ($line =~ /($var_re)=(\S.*?)\s*$/){ # variable assignment
         $line = "$1 = ".listConvert($2);
-    } elsif ($line =~ /^\s*echo\s*$/){ # echo
+    } elsif ($line =~ /^\s*echo\s*$/){ # echo w/o arg
         # $line = "print '\\n'";
         $line = "print";
     } elsif ($line =~ /^\s*echo\s+(.*?)\s*$/){ # echo
@@ -158,6 +158,9 @@ sub translate {
     } elsif ($line =~ /^\s*rm\s+(.*?)\s*$/){ # rm
         $import{os} = 1;
         $line = "os.remove(".echoConvert($1).")";
+    } elsif ($line =~ /^\s*exit\s*$/){ # exit w/o arg
+        $import{sys} = 1;
+        $line = "sys.exit()";
     } elsif ($line =~ /^\s*exit\s+(.*?)\s*$/){ # exit
         $import{sys} = 1;
         $line = "sys.exit(".echoConvert($1).")";
@@ -166,7 +169,7 @@ sub translate {
         $line = "$1 = sys.stdin.readline().rstrip()";
     } elsif ($line =~ /^\s*expr\s+(.*?)\s*$/){ # expr
         $line = "print ".exprConvert($1);
-    } elsif ($line =~ /^\s*test\s*$/){ # test
+    } elsif ($line =~ /^\s*test\s*$/){ # test w/o arg
         $line = "False";
     } elsif ($line =~ /^\s*test\s+(.*?)\s*$/){ # test
         $line = testConvert($1);
@@ -573,6 +576,16 @@ sub testConvert {
         $line = "sys.argv[$1]";
     # } elsif (not $line =~ /'.*'/){
     #     $line = "'$line'";
+    } elsif ($line =~ /^\s*\$\@\s*$/s){ # if $@
+        $import{sys} = 1;
+        $line = "sys.argv[1:]"
+        # $line = "' '.join(sys.argv[1:])"; # print in sh format
+    } elsif ($line =~ /^\s*\$\*\s*$/s){ # if $*
+        $import{sys} = 1;
+        $line = "' '.join(sys.argv[1:])";
+    } elsif ($line =~ /^\s*\$\#\s*$/s){ # if $#
+        $import{sys} = 1;
+        $line = "(len(sys.argv) - 1)";
     } elsif ($line){
         if (not $line =~ /'.*'/){
             $line = "(len('$line') != 0";
@@ -692,6 +705,16 @@ sub exprConvert {
     } elsif ($line =~ /^\$(\d+)$/){ # if special variable
         $import{sys} = 1;
         $line = "sys.argv[$1]";
+    } elsif ($line =~ /^\s*\$\@\s*$/s){ # if $@
+        $import{sys} = 1;
+        $line = "sys.argv[1:]"
+        # $line = "' '.join(sys.argv[1:])"; # print in sh format
+    } elsif ($line =~ /^\s*\$\*\s*$/s){ # if $*
+        $import{sys} = 1;
+        $line = "' '.join(sys.argv[1:])";
+    } elsif ($line =~ /^\s*\$\#\s*$/s){ # if $#
+        $import{sys} = 1;
+        $line = "(len(sys.argv) - 1)";
     } elsif (not $line =~ /'.*'/){
         $line = "'$line'";
     }
