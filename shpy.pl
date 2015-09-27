@@ -369,25 +369,29 @@ sub testConvert {
     my $arg2;
     my $op;
     $line =~ s/\\([^\\])/$1/g; # unescape line. does not work for escaped backslash at eol
-    if ($line =~ /('.*?'|\S+)\s+-nt\s+('.*?'|\S+)/){ # newer than
-        $arg1 = $1;
-        $arg2 = $2;
-        if (not $arg1 =~ /'.*'/){
-            $arg1 = "'$arg1'";
-        }
-        if (not $arg2 =~ /'.*'/){
-            $arg2 = "'$arg2'";
-        }
+    if ($line =~ /('.*?'|".*?"|\S+)\s+-nt\s+('.*?'|".*?"|\S+)/){ # newer than
+        # $arg1 = $1;
+        # $arg2 = $2;
+        # if (not $arg1 =~ /'.*'/){
+        #     $arg1 = "'$arg1'";
+        # }
+        # if (not $arg2 =~ /'.*'/){
+        #     $arg2 = "'$arg2'";
+        # }
+        $arg1 = echoConvert($1);
+        $arg2 = echoConvert($2);
         $line = "os.path.exists($arg1) and (not os.path.exists($arg2) or os.stat($arg1).st_mtime > os.stat($arg2).st_mtime)";
-    } elsif ($line =~ /('.*?'|\S+)\s+-ot\s+('.*?'|\S+)/){ # older than
-        $arg1 = $1;
-        $arg2 = $2;
-        if (not $arg1 =~ /'.*'/){
-            $arg1 = "'$arg1'";
-        }
-        if (not $arg2 =~ /'.*'/){
-            $arg2 = "'$arg2'";
-        }
+    } elsif ($line =~ /('.*?'|".*?"|\S+)\s+-ot\s+('.*?'|".*?"|\S+)/){ # older than
+        # $arg1 = $1;
+        # $arg2 = $2;
+        # if (not $arg1 =~ /'.*'/){
+        #     $arg1 = "'$arg1'";
+        # }
+        # if (not $arg2 =~ /'.*'/){
+        #     $arg2 = "'$arg2'";
+        # }
+        $arg1 = echoConvert($1);
+        $arg2 = echoConvert($2);
         $line = "os.path.exists($arg2) and (not os.path.exists($arg1) or os.stat($arg2).st_mtime > os.stat($arg1).st_mtime)";
     } elsif ($line =~ /^\s*!\s+(.*?)\s*$/){
         # print "$line\n";
