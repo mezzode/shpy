@@ -121,7 +121,8 @@ sub translate {
     if ($line =~ /($var_re)=(\S.*?)\s*$/){ # variable assignment
         $line = "$1 = ".listConvert($2);
     } elsif ($line =~ /^\s*echo\s*$/){ # echo
-        $line = "print '\\n'";
+        # $line = "print '\\n'";
+        $line = "print";
     } elsif ($line =~ /^\s*echo\s+(.*?)\s*$/){ # echo
         $line = $1;
         if ($line =~ /^\s*\-n\s+(.*)/){
@@ -219,7 +220,8 @@ sub keyword {
     # $is_keyword = 1 if ($line =~ /^[^#'"]*[^\(]*\)[^'"]*$/); # )
     # "[[.*]]","{.*}","`.*`"
     # "\[\[.*\]\]","{.*}","\`.*\`","[^\(]*\)","\".*\""
-    if ((not $line =~ /^[^#'"]*expr[^'"]*$/) and (not $line =~ /^[^#'"]*test[^'"]*$/) and ($line =~ /[<>\\]/)){
+    if ((not $line =~ /^[^\'\"]*expr[^\'\"]*$/) and (not $line =~ /^[^\'\"]*test[^\'\"]*$/) and ($line =~ /^[^\'\"]*[<>\\][^\'\"]*/)){
+    # if ($line =~ /[<>\\]/){
         $is_keyword = 1;
     }
     # print "$line\n" if $is_keyword;
@@ -293,18 +295,19 @@ sub listConvert {
 
 sub echoConvert {
     my ($line) = @_;
-    chomp $line;
+    # chomp $line;
     # my @elems = $line =~ /('.*?'|\S+)/g;
-    my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$(?:$var_re|[\d\@\#\*]+)|[^\$]+|\s+)/g;
-    # print @elems;
+    my @elems = $line =~ /(`.*?`|'.*?'|".*?"|\$(?:$var_re|[\d\@\#\*]+)|[^\$]+|\s+)/gs;
+    # print "$line\n";
+    # print ">$_<\n" foreach @elems;
     # my @words = ();
     # my @new = ();
     foreach my $i (0..$#elems){
         # print ">>$elems[$i]<<\n";
-        if ($elems[$i] =~ /^'.*?'$/){ # if string
+        if ($elems[$i] =~ /^\s*'.*?'\s*$/s){ # if string
             next;
         }
-        if ($elems[$i] =~ /^`(.*?)`$/){
+        if ($elems[$i] =~ /^\s*`(.*?)`\s*$/){
             $elems[$i] = $1;
             if ($elems[$i] =~ /^\s*test\s+(.*)/){
                 $elems[$i] = testConvert($1);
@@ -328,34 +331,35 @@ sub echoConvert {
                 }
                 $elems[$i] = "subprocess.check_output($elems[$i]).rstrip()";
             }
-        } elsif ($elems[$i] =~ /^"(.*?)"$/){
+        } elsif ($elems[$i] =~ /^\s*"(.*?)"\s*$/s){
             $elems[$i] = echoConvert($1);
-        } elsif ($elems[$i] =~ /^\$($var_re)$/){ # if variable
+        } elsif ($elems[$i] =~ /^\s*\$($var_re)\s*$/s){ # if variable
             $elems[$i] = $1;
         # } elsif ($elems[$i] =~ /\${($var_re)}/){ # if delimited variable
         #     $elems[$i] =~ s/\${/'+/g;
         #     $elems[$i] =~ s/}/+'/g;
         #     $elems[$i] = "'$elems[$i]'";
-        } elsif ($elems[$i] =~ /^\$(\d+)$/){ # if special variable
+        } elsif ($elems[$i] =~ /^\s*\$(\d+)\s*$/s){ # if special variable
             $import{sys} = 1;
             $elems[$i] = "sys.argv[$1]";
-        } elsif ($elems[$i] =~ /^\$\@$/){ # if $@
+        } elsif ($elems[$i] =~ /^\s*\$\@\s*$/s){ # if $@
             $import{sys} = 1;
             # $elems[$i] = "sys.argv[1:]"
             $elems[$i] = "' '.join(sys.argv[1:])"; # print in sh format
-        } elsif ($elems[$i] =~ /^\$\*$/){ # if $*
+        } elsif ($elems[$i] =~ /^\s*\$\*\s*$/s){ # if $*
             $import{sys} = 1;
             $elems[$i] = "' '.join(sys.argv[1:])";
-        } elsif ($elems[$i] =~ /^\$\#$/){ # if $#
+        } elsif ($elems[$i] =~ /^\s*\$\#\s*$/s){ # if $#
             $import{sys} = 1;
             $elems[$i] = "(len(sys.argv) - 1)";
-        } elsif ($elems[$i] =~ /^[\d]+$/){ # if number
+        } elsif ($elems[$i] =~ /^\s*[\d]+\s*$/s){ # if number
             next;
-        } elsif ($elems[$i] =~ /[?*\[\]]/){ # file expansion
+        } elsif ($elems[$i] =~ /[?*\[\]]/s){ # file expansion
             $import{glob} = 1;
             $elems[$i] = "sorted(glob.glob(\"$elems[$i]\"))";
-        } elsif ($elems[$i] =~ /^\$/) {
-        } elsif (not $elems[$i] =~ /^'.*'$/) { # else convert to string
+        } elsif ($elems[$i] =~ /^\s*\$.\s*/) {
+            $cant_translate = 1;
+        } elsif (not $elems[$i] =~ /^'.*'$/s) { # else convert to string
             $elems[$i] = "'$elems[$i]'";
         }
     }
